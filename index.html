@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noxtium - Dashboard FTTH, Telemetría Óptica y Racks</title>
+    <title>Noxtium - Telemetría GPON & Monitoreo de Cámaras</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -53,7 +53,6 @@
             top: 2px;
             right: 2px;
         }
-        /* Custom scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -67,7 +66,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-6">
+<body class="min-h-screen p-4 md:p-6 relative">
 
     <!-- Header / Navbar -->
     <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -75,10 +74,13 @@
             <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain filter brightness-110">
             <div>
                 <h1 class="text-xl font-bold text-white tracking-wide">Noxtium Telemetry</h1>
-                <p class="text-xs text-slate-300">Gestión de Fibra Óptica (FTTH/GPON), OTs, Racks y Equipos Cliente</p>
+                <p class="text-xs text-slate-300">Monitoreo de Fibra Óptica, Cámaras IP y Equipos del Cliente</p>
             </div>
         </div>
         <div class="flex items-center gap-3">
+            <button onclick="abrirModalAgregar()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-md font-medium transition shadow flex items-center gap-1.5">
+                <span>+</span> Agregar Equipo
+            </button>
             <button onclick="exportarConfiguracion()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-md font-medium transition shadow">
                 Exportar JSON
             </button>
@@ -88,14 +90,71 @@
         </div>
     </header>
 
+    <!-- Modal Desplegable para Agregar Equipos -->
+    <div id="modalAgregarEquipo" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 border border-slate-700 relative shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span class="text-indigo-400">⚙️</span> Configurar Nuevo Dispositivo
+                </h3>
+                <button onclick="cerrarModalAgregar()" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+
+            <form id="formEquipo" class="space-y-4" onsubmit="agregarEquipo(event)">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1 font-medium">Posición en Rack (Unidad U)</label>
+                    <select id="selectUnidad" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1 font-medium">Tipo de Equipamiento</label>
+                    <select id="selectTipo" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <option value="OLT">OLT / Headend Fibra</option>
+                        <option value="ONT">ONT Cliente GPON</option>
+                        <option value="Switch">Switch Gestionable</option>
+                        <option value="PatchPanel">Patch Panel UTP/Fibra</option>
+                        <option value="Router">Router / Firewall</option>
+                        <option value="NVR">NVR / Servidor de Cámaras</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1 font-medium">Nombre / Identificador</label>
+                    <input type="text" id="inputNombre" placeholder="Ej: ONT-OFICINA-P1" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1 font-medium">Cantidad de Puertos Físicos</label>
+                    <select id="selectPuertos" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <option value="4">4 Puertos (ONT / NVR)</option>
+                        <option value="8">8 Puertos</option>
+                        <option value="24">24 Puertos</option>
+                        <option value="48">48 Puertos</option>
+                        <option value="0">Sin puertos (Organizador)</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="cerrarModalAgregar()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-4 py-2 rounded font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-4 py-2 rounded font-medium shadow">
+                        Guardar Dispositivo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-        <!-- Panel Izquierdo: Resumen General y Gráficos -->
+        <!-- Panel Izquierdo: Estadísticas y Capacidad -->
         <div class="lg:col-span-1 space-y-6">
             
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Capacidad de Infraestructura</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Métricas del Gabinete</h2>
                 <div class="space-y-4">
                     <div>
                         <div class="flex justify-between text-xs mb-1">
@@ -109,7 +168,7 @@
 
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-300">Puertos de Red Activos</span>
+                            <span class="text-slate-300">Puertos UTP / Fibra Activos</span>
                             <span id="labelPuertosUso" class="font-bold text-emerald-400">0 / 0</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-2">
@@ -119,32 +178,30 @@
                 </div>
             </div>
 
-            <!-- Contador de Inventario -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Conexiones y Dispositivos</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Equipos Monitoreados</h2>
                 <div class="grid grid-cols-2 gap-3 text-center">
                     <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                        <span class="block text-2xl font-bold text-indigo-400" id="countSwitches">0</span>
-                        <span class="text-xs text-slate-300">Switches / OLT</span>
-                    </div>
-                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
                         <span class="block text-2xl font-bold text-cyan-400" id="countONTs">0</span>
-                        <span class="text-xs text-slate-300">ONTs Activas</span>
+                        <span class="text-xs text-slate-300">ONTs GPON</span>
                     </div>
                     <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                        <span class="block text-2xl font-bold text-emerald-400" id="countPatchPanels">0</span>
-                        <span class="text-xs text-slate-300">Patch Panels</span>
+                        <span class="block text-2xl font-bold text-indigo-400" id="countCamaras">0</span>
+                        <span class="text-xs text-slate-300">Cámaras IP</span>
                     </div>
                     <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                        <span class="block text-2xl font-bold text-amber-400" id="countDispositivosIoT">0</span>
-                        <span class="text-xs text-slate-300">Equipos Cliente</span>
+                        <span class="block text-2xl font-bold text-emerald-400" id="countSwitches">0</span>
+                        <span class="text-xs text-slate-300">Switches / Patch</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-2xl font-bold text-amber-400" id="countPantallas">0</span>
+                        <span class="text-xs text-slate-300">Smart Screens</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Gráfico de Tipos -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribución de Red</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribución de Infraestructura</h2>
                 <div class="relative h-44">
                     <canvas id="chartCategorias"></canvas>
                 </div>
@@ -152,157 +209,107 @@
 
         </div>
 
-        <!-- Panel Central: Vista del Rack & Matriz de Puertos / OTs -->
+        <!-- Panel Central: Visor del Rack y Matriz de Puertos -->
         <div class="lg:col-span-2 space-y-6">
             
-            <!-- Visor del Rack -->
             <div class="glass-card p-4">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h2 class="text-lg font-bold text-white">Rack de Distribución (42U)</h2>
-                        <p class="text-xs text-slate-300">Gabinete Central - OLT, Switches & Patch Panels</p>
+                        <h2 class="text-lg font-bold text-white">Rack Principal (42U)</h2>
+                        <p class="text-xs text-slate-300">Infraestructura Central & Distribución</p>
                     </div>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        Red Operativa
-                    </span>
+                    <button onclick="abrirModalAgregar()" class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-700 px-3 py-1.5 rounded hover:bg-indigo-900 transition">
+                        + Añadir a Rack
+                    </button>
                 </div>
 
                 <div class="bg-slate-950 p-4 rounded-xl border-4 border-slate-800 shadow-2xl">
                     <div class="flex justify-between text-xs text-slate-400 font-mono mb-2 px-2 border-b border-slate-800 pb-1">
-                        <span>POSICIÓN</span>
-                        <span>EQUIPAMIENTO EN RACK</span>
-                        <span>ESTADO</span>
+                        <span>UNIDAD (U)</span>
+                        <span>DISPOSITIVO EN RACK</span>
+                        <span>ACCIÓN</span>
                     </div>
 
                     <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[380px] overflow-y-auto pr-1">
-                        <!-- Generado dinámicamente -->
                     </div>
                 </div>
             </div>
 
-            <!-- Matriz de Puertos / Telemetría UTP / Fibra -->
+            <!-- Matriz de Puertos UTP / Fibra -->
             <div class="glass-card p-4">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-700/60 pb-2">
                     <div>
-                        <h3 class="text-sm font-bold text-white">Matriz de Puertos y Tomas (OT)</h3>
-                        <p class="text-[11px] text-slate-400" id="tituloEquipoSeleccionado">Selecciona un equipo del Rack para ver sus conectores</p>
+                        <h3 class="text-sm font-bold text-white">Telemetría de Puertos y Tomas (OT)</h3>
+                        <p class="text-[11px] text-slate-400" id="tituloEquipoSeleccionado">Selecciona un equipo para inspección</p>
                     </div>
                     <div class="flex gap-2 text-[10px]">
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Activo</span>
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Atenuación/Alerta</span>
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span> Libre</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Activo</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Alerta</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600"></span> Libre</span>
                     </div>
                 </div>
 
                 <div id="matrizPuertos" class="grid grid-cols-6 sm:grid-cols-12 gap-2 p-3 bg-slate-950/80 rounded-lg border border-slate-800 min-h-[100px] items-center justify-center">
-                    <p class="col-span-full text-center text-xs text-slate-500 italic py-4">Selecciona un Switch, OLT o Patch Panel para cargar la telemetría del panel.</p>
+                    <p class="col-span-full text-center text-xs text-slate-500 italic py-4">Haz clic en un equipo del rack para desplegar sus conectores.</p>
                 </div>
             </div>
 
         </div>
 
-        <!-- Panel Derecho: Telemetría de Fibra Óptica, ONT Cliente y Gestión -->
+        <!-- Panel Derecho: Telemetría de Potencia y Monitoreo de Cámaras / Equipos Cliente -->
         <div class="lg:col-span-1 space-y-6">
 
-            <!-- 1. PANEL TELEMETRÍA DE POTENCIA FÓTICA Y ONTs ACTIVAS -->
+            <!-- Telemetría de Potencia de Fibra -->
             <div class="glass-card p-4 border-l-4 border-l-cyan-500">
                 <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">ONT Activa y Potencia Óptica</h2>
-                    <span id="badgePotencia" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-400">Sin Datos</span>
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">Potencia de Fibra Óptica</h2>
+                    <span id="badgePotencia" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-400">SFP / GPON</span>
                 </div>
                 
                 <div id="panelTelemetriaFibra" class="space-y-3 text-xs">
-                    <p class="text-slate-400 italic">Haz clic en una ONT o enlace de fibra para obtener la telemetría de potencia RX/TX en dBm.</p>
+                    <p class="text-slate-400 italic">Selecciona una ONT o equipo óptico para ver la potencia RX/TX.</p>
                 </div>
             </div>
 
-            <!-- 2. PANEL ONT CLIENTE: DISPOSITIVOS (Cámaras, Switches, Pantallas Smart) -->
-            <div class="glass-card p-4 border-l-4 border-l-emerald-500">
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">ONT Cliente - Monitoreo IP</h2>
-                    <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded">En línea</span>
+            <!-- VISUALIZACIÓN DE CÁMARAS, SWITCHES Y PANTALLAS DEL CLIENTE -->
+            <div class="glass-card p-4 border-l-4 border-l-indigo-500">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">Dispositivos del Cliente</h2>
+                        <p class="text-[10px] text-slate-400">Cámaras IP, Pantallas Smart & Switches</p>
+                    </div>
+                    <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded font-bold">5 Online</span>
                 </div>
 
-                <div class="text-xs text-slate-300 mb-3 flex justify-between items-center bg-slate-900/80 p-2 rounded border border-slate-800">
-                    <span>Cliente: <strong class="text-white">Sucursal Bogotá - P1</strong></span>
-                    <span class="text-slate-400 font-mono">192.168.1.1</span>
-                </div>
-
-                <div id="listaDispositivosCliente" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                <div id="listaDispositivosCliente" class="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
                     <!-- Cargado por JS -->
                 </div>
-            </div>
-
-            <!-- 3. FORMULARIO AGREGAR / MODIFICAR EQUIPO EN RACK -->
-            <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Agregar Equipo al Rack</h2>
-                
-                <form id="formEquipo" class="space-y-3" onsubmit="agregarEquipo(event)">
-                    <div>
-                        <label class="block text-xs text-slate-300 mb-1">Posición en Rack (U)</label>
-                        <select id="selectUnidad" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-300 mb-1">Tipo de Dispositivo</label>
-                        <select id="selectTipo" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <option value="OLT">OLT / Nodo Fibra</option>
-                            <option value="ONT">ONT Cliente / GPON</option>
-                            <option value="Switch">Switch de Acceso / Core</option>
-                            <option value="PatchPanel">Patch Panel UTP/Fibra</option>
-                            <option value="Router">Router / Firewall</option>
-                            <option value="Organizador">Organizador Horizontal</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-300 mb-1">Nombre / Identificador</label>
-                        <input type="text" id="inputNombre" placeholder="Ej: ONT-CLIENTE-01" required class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-300 mb-1">Puertos Físicos</label>
-                        <select id="selectPuertos" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <option value="4">4 Puertos (ONT / Router)</option>
-                            <option value="8">8 Puertos PON / LAN</option>
-                            <option value="24">24 Puertos</option>
-                            <option value="48">48 Puertos</option>
-                            <option value="0">0 (N/A)</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded text-xs transition shadow">
-                        Guardar en Rack
-                    </button>
-                </form>
             </div>
 
         </div>
 
     </div>
 
-    <!-- Script de Gestión Noxtium -->
+    <!-- Script Noxtium -->
     <script>
         const TOTAL_UNIDADES = 42;
         let equipoSeleccionadoU = 41;
 
-        // Base de datos de equipos en el Rack
         let inventario = {
             42: { tipo: 'OLT', nombre: 'OLT-GPON-NOXTIUM', puertos: 8, estado: 'Activo', conexiones: {} },
             41: { 
                 tipo: 'ONT', 
-                nombre: 'ONT-CLIENTE-P1', 
+                nombre: 'ONT-CLIENTE-PISO1', 
                 puertos: 4, 
                 estado: 'Activo',
-                potenciaRx: '-19.45 dBm',
-                potenciaTx: '+2.10 dBm',
-                atenuacion: '1.2 dB',
-                estadoOptico: 'Óptimo (OK)',
+                potenciaRx: '-19.28 dBm',
+                potenciaTx: '+2.15 dBm',
+                atenuacion: '0.9 dB',
+                estadoOptico: 'Óptimo (Enlace OK)',
                 conexiones: {
-                    1: { destino: 'Switch SW-ACCESO-01', ot: 'OT-P1-A01', velocidad: '1000 Mbps', estado: 'Activo' },
-                    2: { destino: 'Camara IP Exterior', ot: 'OT-P1-CAM01', velocidad: '100 Mbps', estado: 'Activo' },
-                    3: { destino: 'Pantalla Smart TV Sala', ot: 'OT-P1-TV01', velocidad: '1000 Mbps', estado: 'Activo' }
+                    1: { destino: 'NVR CCTV 16 Ch', ot: 'OT-CAM-NVR', velocidad: '1000 Mbps', estado: 'Activo' },
+                    2: { destino: 'Switch Acceso L2', ot: 'OT-SW-ACC01', velocidad: '1000 Mbps', estado: 'Activo' },
+                    3: { destino: 'Smart TV Sala Juntas', ot: 'OT-TV-SALA01', velocidad: '1000 Mbps', estado: 'Activo' }
                 } 
             },
             40: { 
@@ -311,41 +318,38 @@
                 puertos: 24, 
                 estado: 'Activo', 
                 conexiones: {
-                    1: { destino: 'PatchPanel U38-P1', ot: 'OT-PISO1-A101', velocidad: '1000 Mbps', estado: 'Activo' },
-                    2: { destino: 'PatchPanel U38-P2', ot: 'OT-PISO1-A102', velocidad: '1000 Mbps', estado: 'Activo' },
-                    3: { destino: 'PatchPanel U38-P3', ot: 'OT-PISO1-B201', velocidad: '100 Mbps', estado: 'Atenuado' }
+                    1: { destino: 'PatchPanel U38-P1', ot: 'OT-P1-A101', velocidad: '1000 Mbps', estado: 'Activo' },
+                    2: { destino: 'PatchPanel U38-P2', ot: 'OT-P1-A102', velocidad: '1000 Mbps', estado: 'Activo' }
                 } 
             },
-            39: { tipo: 'Organizador', nombre: 'ORG-HORIZ-01', puertos: 0, estado: 'Activo', conexiones: {} },
-            38: { 
-                tipo: 'PatchPanel', 
-                nombre: 'PP-CAT6A-01', 
-                puertos: 24, 
-                estado: 'Activo', 
-                conexiones: {
-                    1: { destino: 'Switch U40-P1', ot: 'OT-PISO1-A101', estado: 'Activo' },
-                    2: { destino: 'Switch U40-P2', ot: 'OT-PISO1-A102', estado: 'Activo' }
-                } 
-            }
+            39: { tipo: 'PatchPanel', nombre: 'PP-CAT6A-01', puertos: 24, estado: 'Activo', conexiones: {} }
         };
 
-        // Dispositivos cliente conectados tras la ONT
+        // Dispositivos finales (Cámaras, Pantallas, Switches)
         const dispositivosCliente = [
-            { nombre: 'Cámara IP Principal HD', tipo: 'Cámara', ip: '192.168.1.50', ping: '4 ms', estado: 'Activo', icono: '🎥' },
-            { nombre: 'Switch Acceso Secundario 8p', tipo: 'Switch', ip: '192.168.1.10', ping: '1 ms', estado: 'Activo', icono: '🔀' },
-            { nombre: 'Pantalla Smart TV Directiva', tipo: 'Pantalla', ip: '192.168.1.85', ping: '12 ms', estado: 'Activo', icono: '📺' },
-            { nombre: 'Cámara IP Parqueadero', tipo: 'Cámara', ip: '192.168.1.51', ping: '0 ms', estado: 'Falla', icono: '🎥' },
-            { nombre: 'Access Point WiFi 6 - Sala', tipo: 'AP', ip: '192.168.1.20', ping: '2 ms', estado: 'Activo', icono: '📡' }
+            { nombre: 'Cámara IP Acceso Principal', tipo: 'Camara', ip: '192.168.1.50', resolución: '1080p / 30fps', ping: '2 ms', bitrate: '4.2 Mbps', estado: 'Activo', icono: '🎥' },
+            { nombre: 'Cámara IP Pasillo Norte', tipo: 'Camara', ip: '192.168.1.51', resolución: '4K UltraHD', ping: '4 ms', bitrate: '8.1 Mbps', estado: 'Activo', icono: '🎥' },
+            { nombre: 'Pantalla Smart TV Conferencia', tipo: 'Pantalla', ip: '192.168.1.88', resolución: '4K Display', ping: '11 ms', bitrate: '12 Mbps', estado: 'Activo', icono: '📺' },
+            { nombre: 'Switch PoE Cámaras 8p', tipo: 'Switch', ip: '192.168.1.10', resolución: 'L2 Managed', ping: '1 ms', bitrate: '1 Gbps', estado: 'Activo', icono: '🔀' },
+            { nombre: 'Cámara IP Parqueadero B2', tipo: 'Camara', ip: '192.168.1.52', resolución: '1080p HD', ping: '0 ms', bitrate: '0 Mbps', estado: 'Falla', icono: '🎥' }
         ];
 
         try {
-            const localData = localStorage.getItem('noxtium_rack_v4');
+            const localData = localStorage.getItem('noxtium_rack_v5');
             if (localData) inventario = JSON.parse(localData);
         } catch (err) {
             console.error('Error cargando localStorage:', err);
         }
 
         let chartInstancia = null;
+
+        function abrirModalAgregar() {
+            document.getElementById('modalAgregarEquipo').classList.remove('hidden');
+        }
+
+        function cerrarModalAgregar() {
+            document.getElementById('modalAgregarEquipo').classList.add('hidden');
+        }
 
         function renderizarRack() {
             const container = document.getElementById('rackContainer');
@@ -358,7 +362,7 @@
             let unidadesOcupadas = 0;
             let totalPuertos = 0;
             let puertosEnUso = 0;
-            let conteo = { Switch: 0, PatchPanel: 0, Router: 0, Organizador: 0, OLT: 0, ONT: 0 };
+            let conteo = { Switch: 0, PatchPanel: 0, Router: 0, OLT: 0, ONT: 0, NVR: 0 };
 
             for (let i = TOTAL_UNIDADES; i >= 1; i--) {
                 const eq = inventario[i];
@@ -431,8 +435,8 @@
             if (!divMatriz) return;
 
             if (!eq || !eq.puertos || eq.puertos === 0) {
-                titulo.textContent = eq ? `${eq.nombre} (U${u}) - Equipo sin puertos de datos` : `Unidad U${u} (Sin Equipamiento)`;
-                divMatriz.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 italic py-4">No hay matriz de puertos para mostrar en esta posición.</p>`;
+                titulo.textContent = eq ? `${eq.nombre} (U${u}) - Equipo sin puertos` : `Unidad U${u} (Libre)`;
+                divMatriz.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 italic py-4">No hay conectores físicos para inspeccionar en esta posición.</p>`;
                 return;
             }
 
@@ -447,7 +451,7 @@
                 let ledColor = 'bg-slate-700';
 
                 if (con) {
-                    if (con.estado === 'Atenuado' || con.estado === 'Falla') {
+                    if (con.estado === 'Falla') {
                         bgColor = 'bg-amber-950/80 border-amber-600 text-amber-200';
                         ledColor = 'bg-amber-500 animate-pulse';
                     } else {
@@ -474,39 +478,39 @@
             if (!panel || !badge) return;
 
             if (eq && (eq.tipo === 'ONT' || eq.tipo === 'OLT')) {
-                const rx = eq.potenciaRx || '-21.10 dBm';
-                const tx = eq.potenciaTx || '+2.50 dBm';
-                const atenuacion = eq.atenuacion || '0.8 dB';
+                const rx = eq.potenciaRx || '-19.28 dBm';
+                const tx = eq.potenciaTx || '+2.15 dBm';
+                const atenuacion = eq.atenuacion || '0.9 dB';
                 const estadoOp = eq.estadoOptico || 'Normal';
 
                 badge.className = 'text-[10px] px-2 py-0.5 rounded font-bold bg-cyan-950 text-cyan-300 border border-cyan-700';
-                badge.textContent = 'GPON SFP OK';
+                badge.textContent = 'Enlace GPON OK';
 
                 panel.innerHTML = `
                     <div class="space-y-2">
                         <div class="flex justify-between items-center bg-slate-900/90 p-2 rounded border border-slate-800">
-                            <span class="text-slate-400">Equipo FTTH:</span>
+                            <span class="text-slate-400">Equipo GPON:</span>
                             <span class="font-bold text-white">${eq.nombre}</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-center">
                             <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
-                                <span class="text-[10px] text-slate-400 block">Potencia Óptica Rx</span>
+                                <span class="text-[10px] text-slate-400 block">Potencia Rx (Bajada)</span>
                                 <span class="font-mono font-bold text-cyan-400 text-sm">${rx}</span>
                             </div>
                             <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
-                                <span class="text-[10px] text-slate-400 block">Potencia Óptica Tx</span>
+                                <span class="text-[10px] text-slate-400 block">Potencia Tx (Subida)</span>
                                 <span class="font-mono font-bold text-emerald-400 text-sm">${tx}</span>
                             </div>
                         </div>
 
                         <div class="bg-slate-900/60 p-2 rounded border border-slate-800 space-y-1 text-[11px]">
                             <div class="flex justify-between">
-                                <span class="text-slate-400">Atenuación de Línea:</span>
+                                <span class="text-slate-400">Atenuación:</span>
                                 <span class="text-slate-200 font-mono">${atenuacion}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-400">Estado del Transceptor:</span>
+                                <span class="text-slate-400">Estado Láser:</span>
                                 <span class="text-emerald-400 font-medium">${estadoOp}</span>
                             </div>
                         </div>
@@ -514,10 +518,10 @@
                 `;
             } else {
                 badge.className = 'text-[10px] px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-400';
-                badge.textContent = 'Enlace UTP / Eth';
+                badge.textContent = 'Ethernet / UTP';
 
                 panel.innerHTML = `
-                    <p class="text-slate-400 italic">El equipo seleccionado (${eq ? eq.nombre : 'Ninguno'}) opera en cobre UTP/Ethernet. Selecciona una ONT u OLT para medir potencia de fibra óptica.</p>
+                    <p class="text-slate-400 italic">El equipo actual (${eq ? eq.nombre : 'Seleccionado'}) utiliza enlaces de cobre. Selecciona la ONT u OLT para leer valores ópticos en dBm.</p>
                 `;
             }
         }
@@ -530,23 +534,25 @@
             dispositivosCliente.forEach(dev => {
                 const esActivo = dev.estado === 'Activo';
                 const card = document.createElement('div');
-                card.className = `flex items-center justify-between p-2 rounded border text-xs ${
-                    esActivo ? 'bg-slate-900/60 border-slate-800' : 'bg-red-950/30 border-red-900/60'
+                card.className = `p-2.5 rounded border text-xs ${
+                    esActivo ? 'bg-slate-900/70 border-slate-800' : 'bg-red-950/30 border-red-900/60'
                 }`;
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm">${dev.icono}</span>
-                        <div>
-                            <p class="font-medium text-slate-200 leading-tight">${dev.nombre}</p>
-                            <p class="text-[10px] text-slate-400 font-mono">${dev.ip}</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">${dev.icono}</span>
+                            <span class="font-bold text-slate-100">${dev.nombre}</span>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${
                             esActivo ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-red-950 text-red-400 border border-red-800'
                         }">${dev.estado}</span>
-                        <p class="text-[9px] text-slate-400 font-mono">${dev.ping}</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 text-[10px] font-mono text-slate-400 pt-1 border-t border-slate-800/60 mt-1">
+                        <div>IP: <span class="text-slate-200">${dev.ip}</span></div>
+                        <div>Ping: <span class="text-emerald-400">${dev.ping}</span></div>
+                        <div>Flujo: <span class="text-indigo-300">${dev.bitrate}</span></div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -558,9 +564,9 @@
             const con = eq.conexiones ? eq.conexiones[p] : null;
             
             if (con) {
-                alert(`Puerto ${p} de ${eq.nombre}:\n\n- OT: ${con.ot || 'N/A'}\n- Destino: ${con.destino}\n- Velocidad: ${con.velocidad || '1 Gbps'}\n- Estado: ${con.estado}`);
+                alert(`Conexión del Puerto ${p} (${eq.nombre}):\n\n- Destino: ${con.destino}\n- OT: ${con.ot || 'N/A'}\n- Velocidad: ${con.velocidad || '1 Gbps'}\n- Estado: ${con.estado}`);
             } else {
-                alert(`Puerto ${p} de ${eq.nombre} disponible para conexionado o parcheo.`);
+                alert(`Puerto ${p} de ${eq.nombre} libre para enlace UTP/Fibra.`);
             }
         }
 
@@ -573,10 +579,10 @@
             document.getElementById('labelPuertosUso').textContent = `${puertosEnUso} / ${totalPuertos} (${pctPuertos}%)`;
             document.getElementById('barPuertosUso').style.width = `${pctPuertos}%`;
 
-            document.getElementById('countSwitches').textContent = (conteo.Switch || 0) + (conteo.OLT || 0);
             document.getElementById('countONTs').textContent = conteo.ONT || 0;
-            document.getElementById('countPatchPanels').textContent = conteo.PatchPanel || 0;
-            document.getElementById('countDispositivosIoT').textContent = dispositivosCliente.length;
+            document.getElementById('countCamaras').textContent = dispositivosCliente.filter(d => d.tipo === 'Camara').length;
+            document.getElementById('countSwitches').textContent = (conteo.Switch || 0) + (conteo.PatchPanel || 0);
+            document.getElementById('countPantallas').textContent = dispositivosCliente.filter(d => d.tipo === 'Pantalla').length;
 
             actualizarGrafico(conteo);
         }
@@ -591,13 +597,13 @@
             chartInstancia = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['OLT / ONT', 'Switches', 'Patch Panels', 'Otros'],
+                    labels: ['ONT / OLT', 'Switches', 'Cámaras IP', 'Otros'],
                     datasets: [{
                         data: [
                             (conteo.OLT || 0) + (conteo.ONT || 0),
                             conteo.Switch || 0,
-                            conteo.PatchPanel || 0,
-                            (conteo.Router || 0) + (conteo.Organizador || 0)
+                            dispositivosCliente.filter(d => d.tipo === 'Camara').length,
+                            (conteo.PatchPanel || 0) + (conteo.Router || 0)
                         ],
                         backgroundColor: ['#06b6d4', '#6366f1', '#10b981', '#64748b'],
                         borderWidth: 0
@@ -628,28 +634,29 @@
                 nombre: nombre,
                 puertos: puertos,
                 estado: 'Activo',
-                potenciaRx: tipo === 'ONT' ? '-20.12 dBm' : undefined,
-                potenciaTx: tipo === 'ONT' ? '+2.10 dBm' : undefined,
+                potenciaRx: tipo === 'ONT' ? '-20.10 dBm' : undefined,
+                potenciaTx: tipo === 'ONT' ? '+2.20 dBm' : undefined,
                 atenuacion: tipo === 'ONT' ? '1.0 dB' : undefined,
                 estadoOptico: tipo === 'ONT' ? 'Óptimo (OK)' : undefined,
                 conexiones: {}
             };
 
             equipoSeleccionadoU = u;
+            cerrarModalAgregar();
             guardarYRenderizar();
             document.getElementById('formEquipo').reset();
         }
 
         function eliminarEquipo(u) {
-            if (confirm(`¿Desea retirar el equipamiento de la Unidad U${u}?`)) {
+            if (confirm(`¿Retirar el equipo de la Unidad U${u}?`)) {
                 delete inventario[u];
-                if (equipoSeleccionadoU == u) equipoSeleccionadoU = 40;
+                if (equipoSeleccionadoU == u) equipoSeleccionadoU = 41;
                 guardarYRenderizar();
             }
         }
 
         function guardarYRenderizar() {
-            localStorage.setItem('noxtium_rack_v4', JSON.stringify(inventario));
+            localStorage.setItem('noxtium_rack_v5', JSON.stringify(inventario));
             renderizarRack();
         }
 
@@ -657,15 +664,15 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventario, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "noxtium_ftth_telemetria.json");
+            downloadAnchor.setAttribute("download", "noxtium_telemetria_camaras.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
         function reiniciarInventario() {
-            if (confirm('¿Restablecer todo el inventario de Noxtium a los valores iniciales?')) {
-                localStorage.removeItem('noxtium_rack_v4');
+            if (confirm('¿Restablecer todo el inventario Noxtium?')) {
+                localStorage.removeItem('noxtium_rack_v5');
                 location.reload();
             }
         }
@@ -677,3 +684,4 @@
     </script>
 </body>
 </html>
+
