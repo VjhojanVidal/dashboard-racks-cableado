@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noxtium - Dashboard de Cableado Estructurado y Racks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+        }
+        .rack-unit {
+            height: 32px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        .rack-unit:hover {
+            background-color: rgba(51, 65, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-6">
+
+    <!-- Header / Navbar -->
+    <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold text-xl tracking-wider">
+                NXT
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide">Noxtium</h1>
+                <p class="text-xs text-slate-400">Sistema de Gestion e Inventario de Cableado Estructurado</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="exportarConfiguracion()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-md font-medium transition">
+                Exportar JSON
+            </button>
+            <button onclick="reiniciarInventario()" class="bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs px-3 py-2 rounded-md font-medium transition">
+                Restablecer
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- Panel Izquierdo: Estadisticas y Metricas -->
+        <div class="lg:col-span-1 space-y-6">
+            
+            <div class="glass-card p-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resumen de Capacidad</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Ocupacion de Racks</span>
+                            <span id="labelOcupacionRack" class="font-bold text-indigo-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2">
+                            <div id="barOcupacionRack" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Puertos UTP en Uso</span>
+                            <span id="labelPuertosUso" class="font-bold text-emerald-400">0 / 0</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2">
+                            <div id="barPuertosUso" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contador de Dispositivos -->
+            <div class="glass-card p-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Inventario Activo</h2>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                        <span class="block text-2xl font-bold text-indigo-400" id="countSwitches">0</span>
+                        <span class="text-xs text-slate-400">Switches</span>
+                    </div>
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                        <span class="block text-2xl font-bold text-emerald-400" id="countPatchPanels">0</span>
+                        <span class="text-xs text-slate-400">Patch Panels</span>
+                    </div>
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                        <span class="block text-2xl font-bold text-amber-400" id="countRouters">0</span>
+                        <span class="text-xs text-slate-400">Routers / Firewalls</span>
+                    </div>
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                        <span class="block text-2xl font-bold text-cyan-400" id="countOrganizadores">0</span>
+                        <span class="text-xs text-slate-400">Organizadores</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grafico -->
+            <div class="glass-card p-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Distribucion por Categoria</h2>
+                <div class="relative h-48">
+                    <canvas id="chartCategorias"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Panel Central: Vista Visual del Rack -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="glass-card p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Rack Principal (42U)</h2>
+                        <p class="text-xs text-slate-400">Gabinete de Comunicaciones - Sala MDF</p>
+                    </div>
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Estado: Operativo
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Estructura del Rack -->
+                <div class="bg-slate-950 p-4 rounded-xl border-4 border-slate-800 shadow-2xl">
+                    <div class="flex justify-between text-xs text-slate-500 font-mono mb-2 px-2 border-b border-slate-800 pb-1">
+                        <span>UNIDAD (U)</span>
+                        <span>EQUIPAMIENTO INSTALADO</span>
+                        <span>ACCION</span>
+                    </div>
+
+                    <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[620px] overflow-y-auto pr-1">
+                        <!-- Las unidades RU se generan dinamicamente mediante JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Formulario -->
+        <div class="lg:col-span-1 space-y-6">
+            
+            <div class="glass-card p-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Agregar / Modificar Equipo</h2>
+                
+                <form id="formEquipo" class="space-y-3" onsubmit="agregarEquipo(event)">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Posicion en Rack (U)</label>
+                        <select id="selectUnidad" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <!-- Opciones generadas dinamicamente -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Tipo de Dispositivo</label>
+                        <select id="selectTipo" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="Switch">Switch de Acceso / Core</option>
+                            <option value="PatchPanel">Patch Panel UTP</option>
+                            <option value="Router">Router / Firewall</option>
+                            <option value="Organizador">Organizador Horizontal</option>
+                            <option value="Bandeja">Bandeja de Fibra / Servidor</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Nombre / Identificador</label>
+                        <input type="text" id="inputNombre" placeholder="Ej: SW-ACCESO-P1" required class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Cantidad de Puertos</label>
+                        <select id="selectPuertos" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="24">24 Puertos</option>
+                            <option value="48">48 Puertos</option>
+                            <option value="12">12 Puertos</option>
+                            <option value="0">0 (N/A - Organizador)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded text-xs transition">
+                        Guardar en Rack
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-card p-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Detalle de Conexion</h2>
+                <div id="detallePuerto" class="text-xs text-slate-400 space-y-2">
+                    <p class="italic text-slate-500">Selecciona un elemento en el rack para ver sus detalles de configuracion.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script Noxtium -->
+    <script>
+        const TOTAL_UNIDADES = 42;
+        let inventario = {
+            42: { tipo: 'Router', nombre: 'GW-BORDER-01', puertos: 12, estado: 'Activo', conexiones: {} },
+            40: { tipo: 'Switch', nombre: 'SW-CORE-01', puertos: 24, estado: 'Activo', conexiones: {1: 'PatchPanel U20-P1', 2: 'PatchPanel U20-P2'} },
+            39: { tipo: 'Organizador', nombre: 'ORG-HORIZ-01', puertos: 0, estado: 'Activo', conexiones: {} },
+            38: { tipo: 'PatchPanel', nombre: 'PP-CAT6A-01', puertos: 24, estado: 'Activo', conexiones: {1: 'Punto Toma A-101', 2: 'Punto Toma A-102'} }
+        };
+
+        try {
+            const localData = localStorage.getItem('noxtium_rack_v2');
+            if (localData) {
+                inventario = JSON.parse(localData);
+            }
+        } catch (err) {
+            console.error('Error al cargar localStorage:', err);
+        }
+
+        let chartInstancia = null;
+
+        function renderizarRack() {
+            const container = document.getElementById('rackContainer');
+            const selectUnidad = document.getElementById('selectUnidad');
+            if (!container || !selectUnidad) return;
+
+            container.innerHTML = '';
+            selectUnidad.innerHTML = '';
+
+            let unidadesOcupadas = 0;
+            let totalPuertos = 0;
+            let puertosEnUso = 0;
+            let conteo = { Switch: 0, PatchPanel: 0, Router: 0, Organizador: 0, Bandeja: 0 };
+
+            for (let i = TOTAL_UNIDADES; i >= 1; i--) {
+                const eq = inventario[i];
+                
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Unidad U${i} ${eq ? '- (' + eq.nombre + ')' : '(Vacia)'}`;
+                selectUnidad.appendChild(option);
+
+                const unitDiv = document.createElement('div');
+                unitDiv.className = 'rack-unit flex items-center justify-between px-2 rounded bg-slate-900/50 border border-slate-800/80';
+
+                if (eq) {
+                    unidadesOcupadas++;
+                    conteo[eq.tipo] = (conteo[eq.tipo] || 0) + 1;
+                    totalPuertos += eq.puertos || 0;
+                    
+                    const conexionesOcupadas = Object.keys(eq.conexiones || {}).length;
+                    puertosEnUso += conexionesOcupadas;
+
+                    let badgeColor = 'bg-slate-700 text-slate-300';
+                    if (eq.tipo === 'Switch') badgeColor = 'bg-indigo-950 text-indigo-300 border-indigo-800';
+                    if (eq.tipo === 'PatchPanel') badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+                    if (eq.tipo === 'Router') badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
+                    if (eq.tipo === 'Organizador') badgeColor = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+
+                    unitDiv.innerHTML = `
+                        <span class="text-slate-500 font-bold w-8">U${i}</span>
+                        <div class="flex-1 px-3">
+                            <span class="font-bold text-slate-200">${eq.nombre}</span>
+                            <span class="ml-2 text-[10px] px-2 py-0.5 rounded border ${badgeColor}">${eq.tipo}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${eq.puertos > 0 ? `<span class="text-[10px] text-slate-400">${conexionesOcupadas}/${eq.puertos} Pts</span>` : ''}
+                            <button onclick="eliminarEquipo(${i})" class="text-red-400 hover:text-red-300 text-xs px-1">Eliminar</button>
+                        </div>
+                    `;
+                } else {
+                    unitDiv.innerHTML = `
+                        <span class="text-slate-600 font-bold w-8">U${i}</span>
+                        <span class="text-slate-600 italic text-[11px]">Espacio Disponible</span>
+                        <span class="text-slate-700">--</span>
+                    `;
+                }
+
+                container.appendChild(unitDiv);
+            }
+
+            actualizarEstadisticas(unidadesOcupadas, totalPuertos, puertosEnUso, conteo);
+        }
+
+        function actualizarEstadisticas(ocupadas, totalPuertos, puertosEnUso, conteo) {
+            const pctRack = Math.round((ocupadas / TOTAL_UNIDADES) * 100);
+            document.getElementById('labelOcupacionRack').textContent = `${pctRack}% (${ocupadas}/${TOTAL_UNIDADES} U)`;
+            document.getElementById('barOcupacionRack').style.width = `${pctRack}%`;
+
+            const pctPuertos = totalPuertos > 0 ? Math.round((puertosEnUso / totalPuertos) * 100) : 0;
+            document.getElementById('labelPuertosUso').textContent = `${puertosEnUso} / ${totalPuertos} (${pctPuertos}%)`;
+            document.getElementById('barPuertosUso').style.width = `${pctPuertos}%`;
+
+            document.getElementById('countSwitches').textContent = conteo.Switch || 0;
+            document.getElementById('countPatchPanels').textContent = conteo.PatchPanel || 0;
+            document.getElementById('countRouters').textContent = conteo.Router || 0;
+            document.getElementById('countOrganizadores').textContent = conteo.Organizador || 0;
+
+            actualizarGrafico(conteo);
+        }
+
+        function actualizarGrafico(conteo) {
+            const canvas = document.getElementById('chartCategorias');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if (chartInstancia) {
+                chartInstancia.destroy();
+            }
+
+            chartInstancia = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Switches', 'Patch Panels', 'Routers', 'Organizadores', 'Otros'],
+                    datasets: [{
+                        data: [
+                            conteo.Switch || 0,
+                            conteo.PatchPanel || 0,
+                            conteo.Router || 0,
+                            conteo.Organizador || 0,
+                            conteo.Bandeja || 0
+                        ],
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#64748b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function agregarEquipo(e) {
+            e.preventDefault();
+            const u = document.getElementById('selectUnidad').value;
+            const tipo = document.getElementById('selectTipo').value;
+            const nombre = document.getElementById('inputNombre').value;
+            const puertos = parseInt(document.getElementById('selectPuertos').value);
+
+            inventario[u] = {
+                tipo: tipo,
+                nombre: nombre,
+                puertos: puertos,
+                estado: 'Activo',
+                conexiones: {}
+            };
+
+            guardarYRenderizar();
+            document.getElementById('formEquipo').reset();
+        }
+
+        function eliminarEquipo(u) {
+            if (confirm(`Desea retirar el equipamiento de la Unidad U${u}?`)) {
+                delete inventario[u];
+                guardarYRenderizar();
+            }
+        }
+
+        function guardarYRenderizar() {
+            localStorage.setItem('noxtium_rack_v2', JSON.stringify(inventario));
+            renderizarRack();
+        }
+
+        function exportarConfiguracion() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventario, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "noxtium_inventario_rack.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function reiniciarInventario() {
+            if (confirm('Restablecer todo el inventario de Noxtium a los valores iniciales?')) {
+                localStorage.removeItem('noxtium_rack_v2');
+                location.reload();
+            }
+        }
+
+        window.onload = function() {
+            renderizarRack();
+        };
+    </script>
+</body>
+</html>
+
