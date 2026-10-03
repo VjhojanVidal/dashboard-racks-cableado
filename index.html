@@ -19,12 +19,24 @@
             border-radius: 0.75rem;
         }
         .rack-unit {
-            height: 32px;
+            height: 36px;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
             transition: all 0.2s ease;
         }
         .rack-unit:hover {
             background-color: rgba(51, 65, 85, 0.5);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -33,18 +45,18 @@
     <!-- Header / Navbar -->
     <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
-            <!-- Logo Noxtium con filtro de brillo para resaltar texto sobre fondo oscuro y bypass de caché -->
-            <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain brightness-125 filter">
+            <!-- Logo Noxtium Limpio -->
+            <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain filter brightness-110">
             <div>
                 <h1 class="text-xl font-bold text-white tracking-wide">Noxtium</h1>
-                <p class="text-xs text-slate-300">Sistema de Gestion e Inventario de Cableado Estructurado</p>
+                <p class="text-xs text-slate-300">Sistema de Gestión e Inventario de Cableado Estructurado</p>
             </div>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="exportarConfiguracion()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-md font-medium transition">
+            <button onclick="exportarConfiguracion()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-md font-medium transition shadow">
                 Exportar JSON
             </button>
-            <button onclick="reiniciarInventario()" class="bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs px-3 py-2 rounded-md font-medium transition">
+            <button onclick="reiniciarInventario()" class="bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs px-3 py-2 rounded-md font-medium transition shadow">
                 Restablecer
             </button>
         </div>
@@ -53,7 +65,7 @@
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-        <!-- Panel Izquierdo: Estadisticas y Metricas -->
+        <!-- Panel Izquierdo: Estadísticas y Métricas -->
         <div class="lg:col-span-1 space-y-6">
             
             <div class="glass-card p-4">
@@ -61,11 +73,11 @@
                 <div class="space-y-4">
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-300">Ocupacion de Racks</span>
+                            <span class="text-slate-300">Ocupación de Racks</span>
                             <span id="labelOcupacionRack" class="font-bold text-indigo-400">0%</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-2">
-                            <div id="barOcupacionRack" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                            <div id="barOcupacionRack" class="bg-indigo-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -75,7 +87,7 @@
                             <span id="labelPuertosUso" class="font-bold text-emerald-400">0 / 0</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-2">
-                            <div id="barPuertosUso" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                            <div id="barPuertosUso" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -104,9 +116,9 @@
                 </div>
             </div>
 
-            <!-- Grafico -->
+            <!-- Gráfico -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribucion por Categoria</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribución por Categoría</h2>
                 <div class="relative h-48">
                     <canvas id="chartCategorias"></canvas>
                 </div>
@@ -134,17 +146,17 @@
                     <div class="flex justify-between text-xs text-slate-400 font-mono mb-2 px-2 border-b border-slate-800 pb-1">
                         <span>UNIDAD (U)</span>
                         <span>EQUIPAMIENTO INSTALADO</span>
-                        <span>ACCION</span>
+                        <span>ACCIÓN</span>
                     </div>
 
                     <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[620px] overflow-y-auto pr-1">
-                        <!-- Las unidades RU se generan dinamicamente mediante JS -->
+                        <!-- Las unidades RU se generan dinámicamente mediante JS -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Panel Derecho: Formulario -->
+        <!-- Panel Derecho: Formulario y Detalles -->
         <div class="lg:col-span-1 space-y-6">
             
             <div class="glass-card p-4">
@@ -152,9 +164,9 @@
                 
                 <form id="formEquipo" class="space-y-3" onsubmit="agregarEquipo(event)">
                     <div>
-                        <label class="block text-xs text-slate-300 mb-1">Posicion en Rack (U)</label>
+                        <label class="block text-xs text-slate-300 mb-1">Posición en Rack (U)</label>
                         <select id="selectUnidad" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <!-- Opciones generadas dinamicamente -->
+                            <!-- Opciones generadas dinámicamente -->
                         </select>
                     </div>
 
@@ -184,16 +196,16 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded text-xs transition">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded text-xs transition shadow">
                         Guardar en Rack
                     </button>
                 </form>
             </div>
 
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Detalle de Conexion</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Detalle de Conexión</h2>
                 <div id="detallePuerto" class="text-xs text-slate-300 space-y-2">
-                    <p class="italic text-slate-400">Selecciona un elemento en el rack para ver sus detalles de configuracion.</p>
+                    <p class="italic text-slate-400">Selecciona un elemento en el rack para ver sus detalles de configuración.</p>
                 </div>
             </div>
 
@@ -206,7 +218,7 @@
         const TOTAL_UNIDADES = 42;
         let inventario = {
             42: { tipo: 'Router', nombre: 'GW-BORDER-01', puertos: 12, estado: 'Activo', conexiones: {} },
-            40: { tipo: 'Switch', nombre: 'SW-CORE-01', puertos: 24, estado: 'Activo', conexiones: {1: 'PatchPanel U20-P1', 2: 'PatchPanel U20-P2'} },
+            40: { tipo: 'Switch', nombre: 'SW-CORE-01', puertos: 24, estado: 'Activo', conexiones: {1: 'PatchPanel U38-P1', 2: 'PatchPanel U38-P2'} },
             39: { tipo: 'Organizador', nombre: 'ORG-HORIZ-01', puertos: 0, estado: 'Activo', conexiones: {} },
             38: { tipo: 'PatchPanel', nombre: 'PP-CAT6A-01', puertos: 24, estado: 'Activo', conexiones: {1: 'Punto Toma A-101', 2: 'Punto Toma A-102'} }
         };
@@ -240,11 +252,12 @@
                 
                 const option = document.createElement('option');
                 option.value = i;
-                option.textContent = `Unidad U${i} ${eq ? '- (' + eq.nombre + ')' : '(Vacia)'}`;
+                option.textContent = `Unidad U${i} ${eq ? '- (' + eq.nombre + ')' : '(Vacía)'}`;
                 selectUnidad.appendChild(option);
 
                 const unitDiv = document.createElement('div');
-                unitDiv.className = 'rack-unit flex items-center justify-between px-2 rounded bg-slate-900/50 border border-slate-800/80';
+                unitDiv.className = 'rack-unit flex items-center justify-between px-2 rounded bg-slate-900/50 border border-slate-800/80 cursor-pointer';
+                unitDiv.onclick = () => verDetalle(i);
 
                 if (eq) {
                     unidadesOcupadas++;
@@ -262,13 +275,13 @@
 
                     unitDiv.innerHTML = `
                         <span class="text-slate-400 font-bold w-8">U${i}</span>
-                        <div class="flex-1 px-3">
+                        <div class="flex-1 px-3 flex items-center gap-2">
                             <span class="font-bold text-slate-100">${eq.nombre}</span>
-                            <span class="ml-2 text-[10px] px-2 py-0.5 rounded border ${badgeColor}">${eq.tipo}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded border ${badgeColor}">${eq.tipo}</span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-3">
                             ${eq.puertos > 0 ? `<span class="text-[10px] text-slate-300">${conexionesOcupadas}/${eq.puertos} Pts</span>` : ''}
-                            <button onclick="eliminarEquipo(${i})" class="text-red-400 hover:text-red-300 text-xs px-1">Eliminar</button>
+                            <button onclick="event.stopPropagation(); eliminarEquipo(${i})" class="text-red-400 hover:text-red-300 text-xs px-1">Eliminar</button>
                         </div>
                     `;
                 } else {
@@ -283,6 +296,39 @@
             }
 
             actualizarEstadisticas(unidadesOcupadas, totalPuertos, puertosEnUso, conteo);
+        }
+
+        function verDetalle(u) {
+            const eq = inventario[u];
+            const divDetalle = document.getElementById('detallePuerto');
+            if (!divDetalle) return;
+
+            if (!eq) {
+                divDetalle.innerHTML = `<p class="italic text-slate-400">Unidad U${u} disponible (sin equipo instalado).</p>`;
+                return;
+            }
+
+            const conexKeys = Object.keys(eq.conexiones || {});
+            let conexHtml = '';
+            if (conexKeys.length > 0) {
+                conexHtml = conexKeys.map(p => `<div><span class="text-indigo-400 font-medium">Puerto ${p}:</span> ${eq.conexiones[p]}</div>`).join('');
+            } else {
+                conexHtml = '<p class="text-slate-400 italic">No hay conexiones activas registradas en los puertos.</p>';
+            }
+
+            divDetalle.innerHTML = `
+                <div class="space-y-1">
+                    <p class="font-bold text-white text-sm">${eq.nombre} <span class="text-xs font-normal text-slate-300">(U${u})</span></p>
+                    <p class="text-slate-300">Tipo: <span class="text-slate-100 font-medium">${eq.tipo}</span></p>
+                    <p class="text-slate-300">Capacidad: <span class="text-slate-100 font-medium">${eq.puertos} puertos</span></p>
+                    <div class="mt-2 pt-2 border-t border-slate-700/60">
+                        <p class="font-semibold text-slate-200 mb-1">Mapeo de Puerto / Patching:</p>
+                        <div class="space-y-1 text-xs max-h-32 overflow-y-auto pr-1">
+                            ${conexHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function actualizarEstadisticas(ocupadas, totalPuertos, puertosEnUso, conteo) {
@@ -360,7 +406,7 @@
         }
 
         function eliminarEquipo(u) {
-            if (confirm(`Desea retirar el equipamiento de la Unidad U${u}?`)) {
+            if (confirm(`¿Desea retirar el equipamiento de la Unidad U${u}?`)) {
                 delete inventario[u];
                 guardarYRenderizar();
             }
@@ -382,7 +428,7 @@
         }
 
         function reiniciarInventario() {
-            if (confirm('Restablecer todo el inventario de Noxtium a los valores iniciales?')) {
+            if (confirm('¿Restablecer todo el inventario de Noxtium a los valores iniciales?')) {
                 localStorage.removeItem('noxtium_rack_v2');
                 location.reload();
             }
