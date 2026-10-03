@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noxtium - Dashboard de Cableado Estructurado y Racks</title>
+    <title>Noxtium - Dashboard FTTH, Telemetría Óptica y Racks</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            background-color: #0f172a;
+            background-color: #0b0f19;
             color: #f8fafc;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         .glass-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(17, 24, 39, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 0.75rem;
@@ -24,7 +24,7 @@
             transition: all 0.2s ease;
         }
         .rack-unit:hover {
-            background-color: rgba(51, 65, 85, 0.5);
+            background-color: rgba(30, 41, 59, 0.6);
         }
         .port-box {
             width: 26px;
@@ -59,7 +59,7 @@
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(11, 15, 25, 0.6);
         }
         ::-webkit-scrollbar-thumb {
             background: rgba(51, 65, 85, 0.8);
@@ -74,8 +74,8 @@
         <div class="flex items-center gap-3">
             <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain filter brightness-110">
             <div>
-                <h1 class="text-xl font-bold text-white tracking-wide">Noxtium</h1>
-                <p class="text-xs text-slate-300">Sistema de Gestión, Telemetría e Inventario de Cableado Estructurado</p>
+                <h1 class="text-xl font-bold text-white tracking-wide">Noxtium Telemetry</h1>
+                <p class="text-xs text-slate-300">Gestión de Fibra Óptica (FTTH/GPON), OTs, Racks y Equipos Cliente</p>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -91,15 +91,15 @@
     <!-- Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-        <!-- Panel Izquierdo: Estadísticas y Métricas -->
+        <!-- Panel Izquierdo: Resumen General y Gráficos -->
         <div class="lg:col-span-1 space-y-6">
             
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Resumen de Capacidad</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Capacidad de Infraestructura</h2>
                 <div class="space-y-4">
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-300">Ocupación de Racks</span>
+                            <span class="text-slate-300">Ocupación del Rack</span>
                             <span id="labelOcupacionRack" class="font-bold text-indigo-400">0%</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-2">
@@ -109,7 +109,7 @@
 
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-300">Puertos UTP en Uso</span>
+                            <span class="text-slate-300">Puertos de Red Activos</span>
                             <span id="labelPuertosUso" class="font-bold text-emerald-400">0 / 0</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-2">
@@ -119,32 +119,32 @@
                 </div>
             </div>
 
-            <!-- Contador de Dispositivos -->
+            <!-- Contador de Inventario -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Inventario Activo</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Conexiones y Dispositivos</h2>
                 <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
                         <span class="block text-2xl font-bold text-indigo-400" id="countSwitches">0</span>
-                        <span class="text-xs text-slate-300">Switches</span>
+                        <span class="text-xs text-slate-300">Switches / OLT</span>
                     </div>
-                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-2xl font-bold text-cyan-400" id="countONTs">0</span>
+                        <span class="text-xs text-slate-300">ONTs Activas</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
                         <span class="block text-2xl font-bold text-emerald-400" id="countPatchPanels">0</span>
                         <span class="text-xs text-slate-300">Patch Panels</span>
                     </div>
-                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
-                        <span class="block text-2xl font-bold text-amber-400" id="countRouters">0</span>
-                        <span class="text-xs text-slate-300">Routers / Firewalls</span>
-                    </div>
-                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
-                        <span class="block text-2xl font-bold text-cyan-400" id="countOrganizadores">0</span>
-                        <span class="text-xs text-slate-300">Organizadores</span>
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-2xl font-bold text-amber-400" id="countDispositivosIoT">0</span>
+                        <span class="text-xs text-slate-300">Equipos Cliente</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Gráfico Categorías -->
+            <!-- Gráfico de Tipos -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribución por Categoría</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribución de Red</h2>
                 <div class="relative h-44">
                     <canvas id="chartCategorias"></canvas>
                 </div>
@@ -152,91 +152,123 @@
 
         </div>
 
-        <!-- Panel Central: Rack + Visualizador de Puertos y OTs -->
+        <!-- Panel Central: Vista del Rack & Matriz de Puertos / OTs -->
         <div class="lg:col-span-2 space-y-6">
             
             <!-- Visor del Rack -->
             <div class="glass-card p-4">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h2 class="text-lg font-bold text-white">Rack Principal (42U)</h2>
-                        <p class="text-xs text-slate-300">Gabinete de Comunicaciones - Sala MDF</p>
+                        <h2 class="text-lg font-bold text-white">Rack de Distribución (42U)</h2>
+                        <p class="text-xs text-slate-300">Gabinete Central - OLT, Switches & Patch Panels</p>
                     </div>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        Estado: Operativo
+                        Red Operativa
                     </span>
                 </div>
 
                 <div class="bg-slate-950 p-4 rounded-xl border-4 border-slate-800 shadow-2xl">
                     <div class="flex justify-between text-xs text-slate-400 font-mono mb-2 px-2 border-b border-slate-800 pb-1">
-                        <span>UNIDAD (U)</span>
-                        <span>EQUIPAMIENTO INSTALADO</span>
-                        <span>ACCIÓN</span>
+                        <span>POSICIÓN</span>
+                        <span>EQUIPAMIENTO EN RACK</span>
+                        <span>ESTADO</span>
                     </div>
 
-                    <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[420px] overflow-y-auto pr-1">
-                        <!-- Generado por JS -->
+                    <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[380px] overflow-y-auto pr-1">
+                        <!-- Generado dinámicamente -->
                     </div>
                 </div>
             </div>
 
-            <!-- Panel de Telemetría de Puertos y OTs (Outlet Telecoms) -->
+            <!-- Matriz de Puertos / Telemetría UTP / Fibra -->
             <div class="glass-card p-4">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-700/60 pb-2">
                     <div>
-                        <h3 class="text-sm font-bold text-white">Telemetría de Puertos & OTs (Tomas de Usuario)</h3>
-                        <p class="text-[11px] text-slate-400" id="tituloEquipoSeleccionado">Selecciona un equipo del rack para inspeccionar sus puertos</p>
+                        <h3 class="text-sm font-bold text-white">Matriz de Puertos y Tomas (OT)</h3>
+                        <p class="text-[11px] text-slate-400" id="tituloEquipoSeleccionado">Selecciona un equipo del Rack para ver sus conectores</p>
                     </div>
                     <div class="flex gap-2 text-[10px]">
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Enlace Activo</span>
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Caída/Error</span>
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span> Sin Conexión</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Activo</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Atenuación/Alerta</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span> Libre</span>
                     </div>
                 </div>
 
                 <div id="matrizPuertos" class="grid grid-cols-6 sm:grid-cols-12 gap-2 p-3 bg-slate-950/80 rounded-lg border border-slate-800 min-h-[100px] items-center justify-center">
-                    <p class="col-span-full text-center text-xs text-slate-500 italic py-4">Haz clic en un Switch o Patch Panel en la lista del rack para desplegar la telemetría de sus puertos y OTs.</p>
+                    <p class="col-span-full text-center text-xs text-slate-500 italic py-4">Selecciona un Switch, OLT o Patch Panel para cargar la telemetría del panel.</p>
                 </div>
             </div>
 
         </div>
 
-        <!-- Panel Derecho: Formulario y Monitor en Tiempo Real -->
+        <!-- Panel Derecho: Telemetría de Fibra Óptica, ONT Cliente y Gestión -->
         <div class="lg:col-span-1 space-y-6">
-            
+
+            <!-- 1. PANEL TELEMETRÍA DE POTENCIA FÓTICA Y ONTs ACTIVAS -->
+            <div class="glass-card p-4 border-l-4 border-l-cyan-500">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">ONT Activa y Potencia Óptica</h2>
+                    <span id="badgePotencia" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-400">Sin Datos</span>
+                </div>
+                
+                <div id="panelTelemetriaFibra" class="space-y-3 text-xs">
+                    <p class="text-slate-400 italic">Haz clic en una ONT o enlace de fibra para obtener la telemetría de potencia RX/TX en dBm.</p>
+                </div>
+            </div>
+
+            <!-- 2. PANEL ONT CLIENTE: DISPOSITIVOS (Cámaras, Switches, Pantallas Smart) -->
+            <div class="glass-card p-4 border-l-4 border-l-emerald-500">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">ONT Cliente - Monitoreo IP</h2>
+                    <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded">En línea</span>
+                </div>
+
+                <div class="text-xs text-slate-300 mb-3 flex justify-between items-center bg-slate-900/80 p-2 rounded border border-slate-800">
+                    <span>Cliente: <strong class="text-white">Sucursal Bogotá - P1</strong></span>
+                    <span class="text-slate-400 font-mono">192.168.1.1</span>
+                </div>
+
+                <div id="listaDispositivosCliente" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                    <!-- Cargado por JS -->
+                </div>
+            </div>
+
+            <!-- 3. FORMULARIO AGREGAR / MODIFICAR EQUIPO EN RACK -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Agregar / Modificar Equipo</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">Agregar Equipo al Rack</h2>
                 
                 <form id="formEquipo" class="space-y-3" onsubmit="agregarEquipo(event)">
                     <div>
                         <label class="block text-xs text-slate-300 mb-1">Posición en Rack (U)</label>
-                        <select id="selectUnidad" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <select id="selectUnidad" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-xs text-slate-300 mb-1">Tipo de Dispositivo</label>
-                        <select id="selectTipo" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <select id="selectTipo" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="OLT">OLT / Nodo Fibra</option>
+                            <option value="ONT">ONT Cliente / GPON</option>
                             <option value="Switch">Switch de Acceso / Core</option>
-                            <option value="PatchPanel">Patch Panel UTP</option>
+                            <option value="PatchPanel">Patch Panel UTP/Fibra</option>
                             <option value="Router">Router / Firewall</option>
                             <option value="Organizador">Organizador Horizontal</option>
-                            <option value="Bandeja">Bandeja de Fibra / Servidor</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-xs text-slate-300 mb-1">Nombre / Identificador</label>
-                        <input type="text" id="inputNombre" placeholder="Ej: SW-ACCESO-P1" required class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="inputNombre" placeholder="Ej: ONT-CLIENTE-01" required class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-300 mb-1">Cantidad de Puertos</label>
-                        <select id="selectPuertos" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs text-slate-300 mb-1">Puertos Físicos</label>
+                        <select id="selectPuertos" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="4">4 Puertos (ONT / Router)</option>
+                            <option value="8">8 Puertos PON / LAN</option>
                             <option value="24">24 Puertos</option>
                             <option value="48">48 Puertos</option>
-                            <option value="12">12 Puertos</option>
-                            <option value="0">0 (N/A - Organizador)</option>
+                            <option value="0">0 (N/A)</option>
                         </select>
                     </div>
 
@@ -246,38 +278,42 @@
                 </form>
             </div>
 
-            <!-- Monitor de Telemetría Detallado del Puerto / OT -->
-            <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
-                    <span>Telemetría de Puerto / OT</span>
-                    <span id="badgeEstadoPuerto" class="hidden text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">--</span>
-                </h2>
-                <div id="detallePuerto" class="text-xs text-slate-300 space-y-2">
-                    <p class="italic text-slate-400">Selecciona un puerto o una OT en la matriz de telemetría para inspeccionar su enlace, punto terminal y métricas de velocidad.</p>
-                </div>
-            </div>
-
         </div>
 
     </div>
 
-    <!-- Script Noxtium -->
+    <!-- Script de Gestión Noxtium -->
     <script>
         const TOTAL_UNIDADES = 42;
-        let equipoSeleccionadoU = 40; // Por defecto Switch U40
+        let equipoSeleccionadoU = 41;
 
+        // Base de datos de equipos en el Rack
         let inventario = {
-            42: { tipo: 'Router', nombre: 'GW-BORDER-01', puertos: 12, estado: 'Activo', conexiones: {} },
+            42: { tipo: 'OLT', nombre: 'OLT-GPON-NOXTIUM', puertos: 8, estado: 'Activo', conexiones: {} },
+            41: { 
+                tipo: 'ONT', 
+                nombre: 'ONT-CLIENTE-P1', 
+                puertos: 4, 
+                estado: 'Activo',
+                potenciaRx: '-19.45 dBm',
+                potenciaTx: '+2.10 dBm',
+                atenuacion: '1.2 dB',
+                estadoOptico: 'Óptimo (OK)',
+                conexiones: {
+                    1: { destino: 'Switch SW-ACCESO-01', ot: 'OT-P1-A01', velocidad: '1000 Mbps', estado: 'Activo' },
+                    2: { destino: 'Camara IP Exterior', ot: 'OT-P1-CAM01', velocidad: '100 Mbps', estado: 'Activo' },
+                    3: { destino: 'Pantalla Smart TV Sala', ot: 'OT-P1-TV01', velocidad: '1000 Mbps', estado: 'Activo' }
+                } 
+            },
             40: { 
                 tipo: 'Switch', 
                 nombre: 'SW-CORE-01', 
                 puertos: 24, 
                 estado: 'Activo', 
                 conexiones: {
-                    1: { destino: 'PatchPanel U38-P1', ot: 'OT-PISO1-A101', velocidad: '1000 Mbps (Full-Duplex)', trafico: '142 Mbps', estado: 'Activo' },
-                    2: { destino: 'PatchPanel U38-P2', ot: 'OT-PISO1-A102', velocidad: '1000 Mbps (Full-Duplex)', trafico: '88 Mbps', estado: 'Activo' },
-                    3: { destino: 'PatchPanel U38-P3', ot: 'OT-PISO1-B201', velocidad: '100 Mbps (Half-Duplex)', trafico: '12 Mbps', estado: 'Error' },
-                    5: { destino: 'Servidor NAS-01', ot: 'OT-MDF-S01', velocidad: '10 Gbps (SFP+)', trafico: '850 Mbps', estado: 'Activo' }
+                    1: { destino: 'PatchPanel U38-P1', ot: 'OT-PISO1-A101', velocidad: '1000 Mbps', estado: 'Activo' },
+                    2: { destino: 'PatchPanel U38-P2', ot: 'OT-PISO1-A102', velocidad: '1000 Mbps', estado: 'Activo' },
+                    3: { destino: 'PatchPanel U38-P3', ot: 'OT-PISO1-B201', velocidad: '100 Mbps', estado: 'Atenuado' }
                 } 
             },
             39: { tipo: 'Organizador', nombre: 'ORG-HORIZ-01', puertos: 0, estado: 'Activo', conexiones: {} },
@@ -287,20 +323,26 @@
                 puertos: 24, 
                 estado: 'Activo', 
                 conexiones: {
-                    1: { destino: 'Switch U40-P1', ot: 'OT-PISO1-A101', puntoToma: 'Toma Doble A-101', estado: 'Activo' },
-                    2: { destino: 'Switch U40-P2', ot: 'OT-PISO1-A102', puntoToma: 'Toma Doble A-102', estado: 'Activo' },
-                    3: { destino: 'Switch U40-P3', ot: 'OT-PISO1-B201', puntoToma: 'Toma Simple B-201', estado: 'Error' }
+                    1: { destino: 'Switch U40-P1', ot: 'OT-PISO1-A101', estado: 'Activo' },
+                    2: { destino: 'Switch U40-P2', ot: 'OT-PISO1-A102', estado: 'Activo' }
                 } 
             }
         };
 
+        // Dispositivos cliente conectados tras la ONT
+        const dispositivosCliente = [
+            { nombre: 'Cámara IP Principal HD', tipo: 'Cámara', ip: '192.168.1.50', ping: '4 ms', estado: 'Activo', icono: '🎥' },
+            { nombre: 'Switch Acceso Secundario 8p', tipo: 'Switch', ip: '192.168.1.10', ping: '1 ms', estado: 'Activo', icono: '🔀' },
+            { nombre: 'Pantalla Smart TV Directiva', tipo: 'Pantalla', ip: '192.168.1.85', ping: '12 ms', estado: 'Activo', icono: '📺' },
+            { nombre: 'Cámara IP Parqueadero', tipo: 'Cámara', ip: '192.168.1.51', ping: '0 ms', estado: 'Falla', icono: '🎥' },
+            { nombre: 'Access Point WiFi 6 - Sala', tipo: 'AP', ip: '192.168.1.20', ping: '2 ms', estado: 'Activo', icono: '📡' }
+        ];
+
         try {
-            const localData = localStorage.getItem('noxtium_rack_v3');
-            if (localData) {
-                inventario = JSON.parse(localData);
-            }
+            const localData = localStorage.getItem('noxtium_rack_v4');
+            if (localData) inventario = JSON.parse(localData);
         } catch (err) {
-            console.error('Error al cargar localStorage:', err);
+            console.error('Error cargando localStorage:', err);
         }
 
         let chartInstancia = null;
@@ -316,7 +358,7 @@
             let unidadesOcupadas = 0;
             let totalPuertos = 0;
             let puertosEnUso = 0;
-            let conteo = { Switch: 0, PatchPanel: 0, Router: 0, Organizador: 0, Bandeja: 0 };
+            let conteo = { Switch: 0, PatchPanel: 0, Router: 0, Organizador: 0, OLT: 0, ONT: 0 };
 
             for (let i = TOTAL_UNIDADES; i >= 1; i--) {
                 const eq = inventario[i];
@@ -345,10 +387,10 @@
                     puertosEnUso += conexionesOcupadas;
 
                     let badgeColor = 'bg-slate-700 text-slate-300';
-                    if (eq.tipo === 'Switch') badgeColor = 'bg-indigo-950 text-indigo-300 border-indigo-800';
-                    if (eq.tipo === 'PatchPanel') badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-                    if (eq.tipo === 'Router') badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
-                    if (eq.tipo === 'Organizador') badgeColor = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+                    if (eq.tipo === 'ONT') badgeColor = 'bg-cyan-950 text-cyan-300 border-cyan-700';
+                    if (eq.tipo === 'OLT') badgeColor = 'bg-blue-950 text-blue-300 border-blue-700';
+                    if (eq.tipo === 'Switch') badgeColor = 'bg-indigo-950 text-indigo-300 border-indigo-700';
+                    if (eq.tipo === 'PatchPanel') badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-700';
 
                     unitDiv.innerHTML = `
                         <span class="text-slate-400 font-bold w-8">U${i}</span>
@@ -358,14 +400,14 @@
                         </div>
                         <div class="flex items-center gap-3">
                             ${eq.puertos > 0 ? `<span class="text-[10px] text-slate-300">${conexionesOcupadas}/${eq.puertos} Pts</span>` : ''}
-                            <button onclick="event.stopPropagation(); eliminarEquipo(${i})" class="text-red-400 hover:text-red-300 text-xs px-1">Eliminar</button>
+                            <button onclick="event.stopPropagation(); eliminarEquipo(${i})" class="text-red-400 hover:text-red-300 text-xs px-1">Retirar</button>
                         </div>
                     `;
                 } else {
                     unitDiv.innerHTML = `
                         <span class="text-slate-500 font-bold w-8">U${i}</span>
-                        <span class="text-slate-500 italic text-[11px]">Espacio Disponible</span>
-                        <span class="text-slate-600">--</span>
+                        <span class="text-slate-600 italic text-[11px]">Espacio Libre</span>
+                        <span class="text-slate-700">--</span>
                     `;
                 }
 
@@ -374,6 +416,7 @@
 
             actualizarEstadisticas(unidadesOcupadas, totalPuertos, puertosEnUso, conteo);
             renderizarMatrizPuertos(equipoSeleccionadoU);
+            actualizarPanelTelemetriaFibra(equipoSeleccionadoU);
         }
 
         function seleccionarEquipoU(u) {
@@ -388,12 +431,12 @@
             if (!divMatriz) return;
 
             if (!eq || !eq.puertos || eq.puertos === 0) {
-                titulo.textContent = eq ? `${eq.nombre} (U${u}) - No posee puertos físicos` : `Unidad U${u} (Vacía)`;
-                divMatriz.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 italic py-4">El elemento seleccionado no dispone de matriz de puertos.</p>`;
+                titulo.textContent = eq ? `${eq.nombre} (U${u}) - Equipo sin puertos de datos` : `Unidad U${u} (Sin Equipamiento)`;
+                divMatriz.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 italic py-4">No hay matriz de puertos para mostrar en esta posición.</p>`;
                 return;
             }
 
-            titulo.textContent = `${eq.nombre} (U${u}) - Telemetría de ${eq.puertos} Puertos RJ45`;
+            titulo.textContent = `${eq.nombre} (U${u}) - Telemetría de ${eq.puertos} Puertos`;
             divMatriz.innerHTML = '';
 
             for (let p = 1; p <= eq.puertos; p++) {
@@ -404,7 +447,7 @@
                 let ledColor = 'bg-slate-700';
 
                 if (con) {
-                    if (con.estado === 'Error') {
+                    if (con.estado === 'Atenuado' || con.estado === 'Falla') {
                         bgColor = 'bg-amber-950/80 border-amber-600 text-amber-200';
                         ledColor = 'bg-amber-500 animate-pulse';
                     } else {
@@ -419,56 +462,106 @@
                     <span>${p}</span>
                 `;
 
-                portDiv.onclick = () => verTelemetriaPuerto(u, p);
+                portDiv.onclick = () => inspeccionarPuerto(u, p);
                 divMatriz.appendChild(portDiv);
             }
         }
 
-        function verTelemetriaPuerto(u, p) {
+        function actualizarPanelTelemetriaFibra(u) {
             const eq = inventario[u];
-            const con = (eq && eq.conexiones) ? eq.conexiones[p] : null;
-            const divDetalle = document.getElementById('detallePuerto');
-            const badgeEstado = document.getElementById('badgeEstadoPuerto');
+            const panel = document.getElementById('panelTelemetriaFibra');
+            const badge = document.getElementById('badgePotencia');
+            if (!panel || !badge) return;
 
-            if (!badgeEstado || !divDetalle) return;
+            if (eq && (eq.tipo === 'ONT' || eq.tipo === 'OLT')) {
+                const rx = eq.potenciaRx || '-21.10 dBm';
+                const tx = eq.potenciaTx || '+2.50 dBm';
+                const atenuacion = eq.atenuacion || '0.8 dB';
+                const estadoOp = eq.estadoOptico || 'Normal';
 
-            if (!con) {
-                badgeEstado.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 inline-block';
-                badgeEstado.textContent = 'Sin Conexión';
+                badge.className = 'text-[10px] px-2 py-0.5 rounded font-bold bg-cyan-950 text-cyan-300 border border-cyan-700';
+                badge.textContent = 'GPON SFP OK';
 
-                divDetalle.innerHTML = `
-                    <div class="space-y-1">
-                        <p class="font-bold text-white">${eq.nombre} <span class="text-indigo-400">Puerto ${p}</span></p>
-                        <p class="text-slate-400">Estado: <span class="text-slate-300 italic">Inactivo / Sin Latiguillo</span></p>
-                        <p class="text-slate-400">OT Vinculada: <span class="text-slate-500">Ninguna</span></p>
-                        <p class="text-[11px] text-slate-500 mt-2">Puerto listo para asignación de cableado estructurado o parcheo.</p>
+                panel.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center bg-slate-900/90 p-2 rounded border border-slate-800">
+                            <span class="text-slate-400">Equipo FTTH:</span>
+                            <span class="font-bold text-white">${eq.nombre}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-center">
+                            <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+                                <span class="text-[10px] text-slate-400 block">Potencia Óptica Rx</span>
+                                <span class="font-mono font-bold text-cyan-400 text-sm">${rx}</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+                                <span class="text-[10px] text-slate-400 block">Potencia Óptica Tx</span>
+                                <span class="font-mono font-bold text-emerald-400 text-sm">${tx}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/60 p-2 rounded border border-slate-800 space-y-1 text-[11px]">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Atenuación de Línea:</span>
+                                <span class="text-slate-200 font-mono">${atenuacion}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Estado del Transceptor:</span>
+                                <span class="text-emerald-400 font-medium">${estadoOp}</span>
+                            </div>
+                        </div>
                     </div>
                 `;
-                return;
+            } else {
+                badge.className = 'text-[10px] px-2 py-0.5 rounded font-bold bg-slate-800 text-slate-400';
+                badge.textContent = 'Enlace UTP / Eth';
+
+                panel.innerHTML = `
+                    <p class="text-slate-400 italic">El equipo seleccionado (${eq ? eq.nombre : 'Ninguno'}) opera en cobre UTP/Ethernet. Selecciona una ONT u OLT para medir potencia de fibra óptica.</p>
+                `;
             }
+        }
 
-            const esError = con.estado === 'Error';
-            badgeEstado.className = `text-[10px] px-2 py-0.5 rounded font-bold inline-block ${
-                esError ? 'bg-amber-900/80 text-amber-300 border border-amber-700' : 'bg-emerald-900/80 text-emerald-300 border border-emerald-700'
-            }`;
-            badgeEstado.textContent = esError ? 'Alerta / Caída' : 'Enlace Activo';
+        function renderizarDispositivosCliente() {
+            const container = document.getElementById('listaDispositivosCliente');
+            if (!container) return;
 
-            divDetalle.innerHTML = `
-                <div class="space-y-2">
-                    <div>
-                        <p class="font-bold text-white text-sm">${eq.nombre} &rarr; <span class="text-indigo-400">Puerto ${p}</span></p>
-                        <p class="text-slate-300 text-xs">OT / Toma Usuario: <span class="font-bold text-emerald-400">${con.ot || 'OT-NO-DEFINIDA'}</span></p>
+            container.innerHTML = '';
+            dispositivosCliente.forEach(dev => {
+                const esActivo = dev.estado === 'Activo';
+                const card = document.createElement('div');
+                card.className = `flex items-center justify-between p-2 rounded border text-xs ${
+                    esActivo ? 'bg-slate-900/60 border-slate-800' : 'bg-red-950/30 border-red-900/60'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">${dev.icono}</span>
+                        <div>
+                            <p class="font-medium text-slate-200 leading-tight">${dev.nombre}</p>
+                            <p class="text-[10px] text-slate-400 font-mono">${dev.ip}</p>
+                        </div>
                     </div>
-                    
-                    <div class="bg-slate-900/80 p-2 rounded border border-slate-800 text-[11px] space-y-1">
-                        <p><span class="text-slate-400">Destino Parcheo:</span> <span class="text-slate-200 font-medium">${con.destino || 'Punto Final'}</span></p>
-                        <p><span class="text-slate-400">Velocidad Negociada:</span> <span class="text-slate-200 font-medium">${con.velocidad || '1000 Mbps'}</span></p>
-                        <p><span class="text-slate-400">Tráfico Estimado:</span> <span class="text-indigo-300 font-mono font-bold">${con.trafico || '0 Mbps'}</span></p>
+                    <div class="text-right">
+                        <span class="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                            esActivo ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-red-950 text-red-400 border border-red-800'
+                        }">${dev.estado}</span>
+                        <p class="text-[9px] text-slate-400 font-mono">${dev.ping}</p>
                     </div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-                    ${con.puntoToma ? `<p class="text-[11px] text-slate-400">Ubicación Física: <span class="text-slate-200">${con.puntoToma}</span></p>` : ''}
-                </div>
-            `;
+        function inspeccionarPuerto(u, p) {
+            const eq = inventario[u];
+            const con = eq.conexiones ? eq.conexiones[p] : null;
+            
+            if (con) {
+                alert(`Puerto ${p} de ${eq.nombre}:\n\n- OT: ${con.ot || 'N/A'}\n- Destino: ${con.destino}\n- Velocidad: ${con.velocidad || '1 Gbps'}\n- Estado: ${con.estado}`);
+            } else {
+                alert(`Puerto ${p} de ${eq.nombre} disponible para conexionado o parcheo.`);
+            }
         }
 
         function actualizarEstadisticas(ocupadas, totalPuertos, puertosEnUso, conteo) {
@@ -480,10 +573,10 @@
             document.getElementById('labelPuertosUso').textContent = `${puertosEnUso} / ${totalPuertos} (${pctPuertos}%)`;
             document.getElementById('barPuertosUso').style.width = `${pctPuertos}%`;
 
-            document.getElementById('countSwitches').textContent = conteo.Switch || 0;
+            document.getElementById('countSwitches').textContent = (conteo.Switch || 0) + (conteo.OLT || 0);
+            document.getElementById('countONTs').textContent = conteo.ONT || 0;
             document.getElementById('countPatchPanels').textContent = conteo.PatchPanel || 0;
-            document.getElementById('countRouters').textContent = conteo.Router || 0;
-            document.getElementById('countOrganizadores').textContent = conteo.Organizador || 0;
+            document.getElementById('countDispositivosIoT').textContent = dispositivosCliente.length;
 
             actualizarGrafico(conteo);
         }
@@ -493,23 +586,20 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             
-            if (chartInstancia) {
-                chartInstancia.destroy();
-            }
+            if (chartInstancia) chartInstancia.destroy();
 
             chartInstancia = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Switches', 'Patch Panels', 'Routers', 'Organizadores', 'Otros'],
+                    labels: ['OLT / ONT', 'Switches', 'Patch Panels', 'Otros'],
                     datasets: [{
                         data: [
+                            (conteo.OLT || 0) + (conteo.ONT || 0),
                             conteo.Switch || 0,
                             conteo.PatchPanel || 0,
-                            conteo.Router || 0,
-                            conteo.Organizador || 0,
-                            conteo.Bandeja || 0
+                            (conteo.Router || 0) + (conteo.Organizador || 0)
                         ],
-                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#64748b'],
+                        backgroundColor: ['#06b6d4', '#6366f1', '#10b981', '#64748b'],
                         borderWidth: 0
                     }]
                 },
@@ -538,6 +628,10 @@
                 nombre: nombre,
                 puertos: puertos,
                 estado: 'Activo',
+                potenciaRx: tipo === 'ONT' ? '-20.12 dBm' : undefined,
+                potenciaTx: tipo === 'ONT' ? '+2.10 dBm' : undefined,
+                atenuacion: tipo === 'ONT' ? '1.0 dB' : undefined,
+                estadoOptico: tipo === 'ONT' ? 'Óptimo (OK)' : undefined,
                 conexiones: {}
             };
 
@@ -555,7 +649,7 @@
         }
 
         function guardarYRenderizar() {
-            localStorage.setItem('noxtium_rack_v3', JSON.stringify(inventario));
+            localStorage.setItem('noxtium_rack_v4', JSON.stringify(inventario));
             renderizarRack();
         }
 
@@ -563,21 +657,22 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventario, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "noxtium_inventario_telemetria.json");
+            downloadAnchor.setAttribute("download", "noxtium_ftth_telemetria.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
         function reiniciarInventario() {
-            if (confirm('¿Restablecer todo el inventario y telemetría de Noxtium a los valores iniciales?')) {
-                localStorage.removeItem('noxtium_rack_v3');
+            if (confirm('¿Restablecer todo el inventario de Noxtium a los valores iniciales?')) {
+                localStorage.removeItem('noxtium_rack_v4');
                 location.reload();
             }
         }
 
         window.onload = function() {
             renderizarRack();
+            renderizarDispositivosCliente();
         };
     </script>
 </body>
