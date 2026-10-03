@@ -19,12 +19,39 @@
             border-radius: 0.75rem;
         }
         .rack-unit {
-            height: 36px;
+            height: 38px;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
             transition: all 0.2s ease;
         }
         .rack-unit:hover {
             background-color: rgba(51, 65, 85, 0.5);
+        }
+        .port-box {
+            width: 26px;
+            height: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+        .port-box:hover {
+            transform: scale(1.1);
+            border-color: #818cf8;
+            z-index: 10;
+        }
+        .led-indicator {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            right: 2px;
         }
         /* Custom scrollbars */
         ::-webkit-scrollbar {
@@ -45,11 +72,10 @@
     <!-- Header / Navbar -->
     <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
-            <!-- Logo Noxtium Limpio -->
             <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain filter brightness-110">
             <div>
                 <h1 class="text-xl font-bold text-white tracking-wide">Noxtium</h1>
-                <p class="text-xs text-slate-300">Sistema de Gestión e Inventario de Cableado Estructurado</p>
+                <p class="text-xs text-slate-300">Sistema de Gestión, Telemetría e Inventario de Cableado Estructurado</p>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -116,32 +142,31 @@
                 </div>
             </div>
 
-            <!-- Gráfico -->
+            <!-- Gráfico Categorías -->
             <div class="glass-card p-4">
                 <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Distribución por Categoría</h2>
-                <div class="relative h-48">
+                <div class="relative h-44">
                     <canvas id="chartCategorias"></canvas>
                 </div>
             </div>
 
         </div>
 
-        <!-- Panel Central: Vista Visual del Rack -->
+        <!-- Panel Central: Rack + Visualizador de Puertos y OTs -->
         <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Visor del Rack -->
             <div class="glass-card p-4">
                 <div class="flex justify-between items-center mb-4">
                     <div>
                         <h2 class="text-lg font-bold text-white">Rack Principal (42U)</h2>
                         <p class="text-xs text-slate-300">Gabinete de Comunicaciones - Sala MDF</p>
                     </div>
-                    <div>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            Estado: Operativo
-                        </span>
-                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Estado: Operativo
+                    </span>
                 </div>
 
-                <!-- Estructura del Rack -->
                 <div class="bg-slate-950 p-4 rounded-xl border-4 border-slate-800 shadow-2xl">
                     <div class="flex justify-between text-xs text-slate-400 font-mono mb-2 px-2 border-b border-slate-800 pb-1">
                         <span>UNIDAD (U)</span>
@@ -149,14 +174,34 @@
                         <span>ACCIÓN</span>
                     </div>
 
-                    <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[620px] overflow-y-auto pr-1">
-                        <!-- Las unidades RU se generan dinámicamente mediante JS -->
+                    <div id="rackContainer" class="space-y-1 font-mono text-xs max-h-[420px] overflow-y-auto pr-1">
+                        <!-- Generado por JS -->
                     </div>
                 </div>
             </div>
+
+            <!-- Panel de Telemetría de Puertos y OTs (Outlet Telecoms) -->
+            <div class="glass-card p-4">
+                <div class="flex justify-between items-center mb-3 border-b border-slate-700/60 pb-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Telemetría de Puertos & OTs (Tomas de Usuario)</h3>
+                        <p class="text-[11px] text-slate-400" id="tituloEquipoSeleccionado">Selecciona un equipo del rack para inspeccionar sus puertos</p>
+                    </div>
+                    <div class="flex gap-2 text-[10px]">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Enlace Activo</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Caída/Error</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span> Sin Conexión</span>
+                    </div>
+                </div>
+
+                <div id="matrizPuertos" class="grid grid-cols-6 sm:grid-cols-12 gap-2 p-3 bg-slate-950/80 rounded-lg border border-slate-800 min-h-[100px] items-center justify-center">
+                    <p class="col-span-full text-center text-xs text-slate-500 italic py-4">Haz clic en un Switch o Patch Panel en la lista del rack para desplegar la telemetría de sus puertos y OTs.</p>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Panel Derecho: Formulario y Detalles -->
+        <!-- Panel Derecho: Formulario y Monitor en Tiempo Real -->
         <div class="lg:col-span-1 space-y-6">
             
             <div class="glass-card p-4">
@@ -166,7 +211,6 @@
                     <div>
                         <label class="block text-xs text-slate-300 mb-1">Posición en Rack (U)</label>
                         <select id="selectUnidad" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <!-- Opciones generadas dinámicamente -->
                         </select>
                     </div>
 
@@ -202,10 +246,14 @@
                 </form>
             </div>
 
+            <!-- Monitor de Telemetría Detallado del Puerto / OT -->
             <div class="glass-card p-4">
-                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Detalle de Conexión</h2>
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>Telemetría de Puerto / OT</span>
+                    <span id="badgeEstadoPuerto" class="hidden text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">--</span>
+                </h2>
                 <div id="detallePuerto" class="text-xs text-slate-300 space-y-2">
-                    <p class="italic text-slate-400">Selecciona un elemento en el rack para ver sus detalles de configuración.</p>
+                    <p class="italic text-slate-400">Selecciona un puerto o una OT en la matriz de telemetría para inspeccionar su enlace, punto terminal y métricas de velocidad.</p>
                 </div>
             </div>
 
@@ -216,15 +264,38 @@
     <!-- Script Noxtium -->
     <script>
         const TOTAL_UNIDADES = 42;
+        let equipoSeleccionadoU = 40; // Por defecto Switch U40
+
         let inventario = {
             42: { tipo: 'Router', nombre: 'GW-BORDER-01', puertos: 12, estado: 'Activo', conexiones: {} },
-            40: { tipo: 'Switch', nombre: 'SW-CORE-01', puertos: 24, estado: 'Activo', conexiones: {1: 'PatchPanel U38-P1', 2: 'PatchPanel U38-P2'} },
+            40: { 
+                tipo: 'Switch', 
+                nombre: 'SW-CORE-01', 
+                puertos: 24, 
+                estado: 'Activo', 
+                conexiones: {
+                    1: { destino: 'PatchPanel U38-P1', ot: 'OT-PISO1-A101', velocidad: '1000 Mbps (Full-Duplex)', trafico: '142 Mbps', estado: 'Activo' },
+                    2: { destino: 'PatchPanel U38-P2', ot: 'OT-PISO1-A102', velocidad: '1000 Mbps (Full-Duplex)', trafico: '88 Mbps', estado: 'Activo' },
+                    3: { destino: 'PatchPanel U38-P3', ot: 'OT-PISO1-B201', velocidad: '100 Mbps (Half-Duplex)', trafico: '12 Mbps', estado: 'Error' },
+                    5: { destino: 'Servidor NAS-01', ot: 'OT-MDF-S01', velocidad: '10 Gbps (SFP+)', trafico: '850 Mbps', estado: 'Activo' }
+                } 
+            },
             39: { tipo: 'Organizador', nombre: 'ORG-HORIZ-01', puertos: 0, estado: 'Activo', conexiones: {} },
-            38: { tipo: 'PatchPanel', nombre: 'PP-CAT6A-01', puertos: 24, estado: 'Activo', conexiones: {1: 'Punto Toma A-101', 2: 'Punto Toma A-102'} }
+            38: { 
+                tipo: 'PatchPanel', 
+                nombre: 'PP-CAT6A-01', 
+                puertos: 24, 
+                estado: 'Activo', 
+                conexiones: {
+                    1: { destino: 'Switch U40-P1', ot: 'OT-PISO1-A101', puntoToma: 'Toma Doble A-101', estado: 'Activo' },
+                    2: { destino: 'Switch U40-P2', ot: 'OT-PISO1-A102', puntoToma: 'Toma Doble A-102', estado: 'Activo' },
+                    3: { destino: 'Switch U40-P3', ot: 'OT-PISO1-B201', puntoToma: 'Toma Simple B-201', estado: 'Error' }
+                } 
+            }
         };
 
         try {
-            const localData = localStorage.getItem('noxtium_rack_v2');
+            const localData = localStorage.getItem('noxtium_rack_v3');
             if (localData) {
                 inventario = JSON.parse(localData);
             }
@@ -256,8 +327,14 @@
                 selectUnidad.appendChild(option);
 
                 const unitDiv = document.createElement('div');
-                unitDiv.className = 'rack-unit flex items-center justify-between px-2 rounded bg-slate-900/50 border border-slate-800/80 cursor-pointer';
-                unitDiv.onclick = () => verDetalle(i);
+                const esSeleccionado = (i === equipoSeleccionadoU);
+                unitDiv.className = `rack-unit flex items-center justify-between px-2 rounded border cursor-pointer ${
+                    esSeleccionado 
+                        ? 'bg-indigo-950/80 border-indigo-500 shadow-lg' 
+                        : 'bg-slate-900/50 border-slate-800/80'
+                }`;
+                
+                unitDiv.onclick = () => seleccionarEquipoU(i);
 
                 if (eq) {
                     unidadesOcupadas++;
@@ -296,37 +373,100 @@
             }
 
             actualizarEstadisticas(unidadesOcupadas, totalPuertos, puertosEnUso, conteo);
+            renderizarMatrizPuertos(equipoSeleccionadoU);
         }
 
-        function verDetalle(u) {
-            const eq = inventario[u];
-            const divDetalle = document.getElementById('detallePuerto');
-            if (!divDetalle) return;
+        function seleccionarEquipoU(u) {
+            equipoSeleccionadoU = u;
+            renderizarRack();
+        }
 
-            if (!eq) {
-                divDetalle.innerHTML = `<p class="italic text-slate-400">Unidad U${u} disponible (sin equipo instalado).</p>`;
+        function renderizarMatrizPuertos(u) {
+            const eq = inventario[u];
+            const divMatriz = document.getElementById('matrizPuertos');
+            const titulo = document.getElementById('tituloEquipoSeleccionado');
+            if (!divMatriz) return;
+
+            if (!eq || !eq.puertos || eq.puertos === 0) {
+                titulo.textContent = eq ? `${eq.nombre} (U${u}) - No posee puertos físicos` : `Unidad U${u} (Vacía)`;
+                divMatriz.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 italic py-4">El elemento seleccionado no dispone de matriz de puertos.</p>`;
                 return;
             }
 
-            const conexKeys = Object.keys(eq.conexiones || {});
-            let conexHtml = '';
-            if (conexKeys.length > 0) {
-                conexHtml = conexKeys.map(p => `<div><span class="text-indigo-400 font-medium">Puerto ${p}:</span> ${eq.conexiones[p]}</div>`).join('');
-            } else {
-                conexHtml = '<p class="text-slate-400 italic">No hay conexiones activas registradas en los puertos.</p>';
+            titulo.textContent = `${eq.nombre} (U${u}) - Telemetría de ${eq.puertos} Puertos RJ45`;
+            divMatriz.innerHTML = '';
+
+            for (let p = 1; p <= eq.puertos; p++) {
+                const con = eq.conexiones ? eq.conexiones[p] : null;
+                const portDiv = document.createElement('div');
+                
+                let bgColor = 'bg-slate-900 border-slate-700 text-slate-400';
+                let ledColor = 'bg-slate-700';
+
+                if (con) {
+                    if (con.estado === 'Error') {
+                        bgColor = 'bg-amber-950/80 border-amber-600 text-amber-200';
+                        ledColor = 'bg-amber-500 animate-pulse';
+                    } else {
+                        bgColor = 'bg-emerald-950/80 border-emerald-600 text-emerald-200';
+                        ledColor = 'bg-emerald-400 animate-ping';
+                    }
+                }
+
+                portDiv.className = `port-box ${bgColor}`;
+                portDiv.innerHTML = `
+                    <span class="led-indicator ${ledColor}"></span>
+                    <span>${p}</span>
+                `;
+
+                portDiv.onclick = () => verTelemetriaPuerto(u, p);
+                divMatriz.appendChild(portDiv);
+            }
+        }
+
+        function verTelemetriaPuerto(u, p) {
+            const eq = inventario[u];
+            const con = (eq && eq.conexiones) ? eq.conexiones[p] : null;
+            const divDetalle = document.getElementById('detallePuerto');
+            const badgeEstado = document.getElementById('badgeEstadoPuerto');
+
+            if (!badgeEstado || !divDetalle) return;
+
+            if (!con) {
+                badgeEstado.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 inline-block';
+                badgeEstado.textContent = 'Sin Conexión';
+
+                divDetalle.innerHTML = `
+                    <div class="space-y-1">
+                        <p class="font-bold text-white">${eq.nombre} <span class="text-indigo-400">Puerto ${p}</span></p>
+                        <p class="text-slate-400">Estado: <span class="text-slate-300 italic">Inactivo / Sin Latiguillo</span></p>
+                        <p class="text-slate-400">OT Vinculada: <span class="text-slate-500">Ninguna</span></p>
+                        <p class="text-[11px] text-slate-500 mt-2">Puerto listo para asignación de cableado estructurado o parcheo.</p>
+                    </div>
+                `;
+                return;
             }
 
+            const esError = con.estado === 'Error';
+            badgeEstado.className = `text-[10px] px-2 py-0.5 rounded font-bold inline-block ${
+                esError ? 'bg-amber-900/80 text-amber-300 border border-amber-700' : 'bg-emerald-900/80 text-emerald-300 border border-emerald-700'
+            }`;
+            badgeEstado.textContent = esError ? 'Alerta / Caída' : 'Enlace Activo';
+
             divDetalle.innerHTML = `
-                <div class="space-y-1">
-                    <p class="font-bold text-white text-sm">${eq.nombre} <span class="text-xs font-normal text-slate-300">(U${u})</span></p>
-                    <p class="text-slate-300">Tipo: <span class="text-slate-100 font-medium">${eq.tipo}</span></p>
-                    <p class="text-slate-300">Capacidad: <span class="text-slate-100 font-medium">${eq.puertos} puertos</span></p>
-                    <div class="mt-2 pt-2 border-t border-slate-700/60">
-                        <p class="font-semibold text-slate-200 mb-1">Mapeo de Puerto / Patching:</p>
-                        <div class="space-y-1 text-xs max-h-32 overflow-y-auto pr-1">
-                            ${conexHtml}
-                        </div>
+                <div class="space-y-2">
+                    <div>
+                        <p class="font-bold text-white text-sm">${eq.nombre} &rarr; <span class="text-indigo-400">Puerto ${p}</span></p>
+                        <p class="text-slate-300 text-xs">OT / Toma Usuario: <span class="font-bold text-emerald-400">${con.ot || 'OT-NO-DEFINIDA'}</span></p>
                     </div>
+                    
+                    <div class="bg-slate-900/80 p-2 rounded border border-slate-800 text-[11px] space-y-1">
+                        <p><span class="text-slate-400">Destino Parcheo:</span> <span class="text-slate-200 font-medium">${con.destino || 'Punto Final'}</span></p>
+                        <p><span class="text-slate-400">Velocidad Negociada:</span> <span class="text-slate-200 font-medium">${con.velocidad || '1000 Mbps'}</span></p>
+                        <p><span class="text-slate-400">Tráfico Estimado:</span> <span class="text-indigo-300 font-mono font-bold">${con.trafico || '0 Mbps'}</span></p>
+                    </div>
+
+                    ${con.puntoToma ? `<p class="text-[11px] text-slate-400">Ubicación Física: <span class="text-slate-200">${con.puntoToma}</span></p>` : ''}
                 </div>
             `;
         }
@@ -401,6 +541,7 @@
                 conexiones: {}
             };
 
+            equipoSeleccionadoU = u;
             guardarYRenderizar();
             document.getElementById('formEquipo').reset();
         }
@@ -408,12 +549,13 @@
         function eliminarEquipo(u) {
             if (confirm(`¿Desea retirar el equipamiento de la Unidad U${u}?`)) {
                 delete inventario[u];
+                if (equipoSeleccionadoU == u) equipoSeleccionadoU = 40;
                 guardarYRenderizar();
             }
         }
 
         function guardarYRenderizar() {
-            localStorage.setItem('noxtium_rack_v2', JSON.stringify(inventario));
+            localStorage.setItem('noxtium_rack_v3', JSON.stringify(inventario));
             renderizarRack();
         }
 
@@ -421,15 +563,15 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventario, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "noxtium_inventario_rack.json");
+            downloadAnchor.setAttribute("download", "noxtium_inventario_telemetria.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
         function reiniciarInventario() {
-            if (confirm('¿Restablecer todo el inventario de Noxtium a los valores iniciales?')) {
-                localStorage.removeItem('noxtium_rack_v2');
+            if (confirm('¿Restablecer todo el inventario y telemetría de Noxtium a los valores iniciales?')) {
+                localStorage.removeItem('noxtium_rack_v3');
                 location.reload();
             }
         }
