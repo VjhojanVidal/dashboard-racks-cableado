@@ -68,20 +68,15 @@
 </head>
 <body class="min-h-screen p-4 md:p-6 relative">
 
-    <!-- ========================================== -->
-    <!-- APARTADO 1: PANTALLA SELECCIÓN DE SALAS    -->
-    <!-- ========================================== -->
+    <!-- APARTADO 1: PANTALLA SELECCIÓN DE SALAS -->
     <div id="vistaSeleccionSalas" class="min-h-screen flex flex-col justify-center items-center max-w-6xl mx-auto py-10">
-        
         <div class="text-center mb-10">
             <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-16 w-auto mx-auto mb-4 object-contain filter brightness-110">
             <h1 class="text-3xl font-extrabold text-white tracking-wider mb-2">Noxtium Datacenter Control</h1>
-            <p class="text-slate-400 text-sm max-w-lg mx-auto">Selecciona la sala de telecomunicaciones o Datacenter para inspeccionar la codificación de racks (Fila/Rack/Posición), telemetría GPON y cámaras IP.</p>
+            <p class="text-slate-400 text-sm max-w-lg mx-auto">Selecciona la sala de telecomunicaciones o Datacenter para inspeccionar la codificación de racks, telemetría GPON y cámaras IP.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4">
-            
-            <!-- Sala 1 -->
             <div onclick="seleccionarSala('MDF Principal', 'Sala Principal - Fila F1/F2')" class="glass-card p-6 border border-slate-800 hover:border-indigo-500 cursor-pointer transition-all duration-300 hover:-translate-y-1 group">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-2xl">🏢</span>
@@ -96,7 +91,6 @@
                 </div>
             </div>
 
-            <!-- Sala 2 -->
             <div onclick="seleccionarSala('IDF - Piso 1', 'Distribución Piso 1')" class="glass-card p-6 border border-slate-800 hover:border-indigo-500 cursor-pointer transition-all duration-300 hover:-translate-y-1 group">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-2xl">⚡</span>
@@ -111,7 +105,6 @@
                 </div>
             </div>
 
-            <!-- Sala 3 -->
             <div onclick="seleccionarSala('Core / FTTH', 'Nodo Principal GPON')" class="glass-card p-6 border border-slate-800 hover:border-indigo-500 cursor-pointer transition-all duration-300 hover:-translate-y-1 group">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-2xl">🌐</span>
@@ -125,16 +118,13 @@
                     <div class="flex justify-between"><span>Potencia Promedio:</span> <strong class="text-cyan-300">-19.3 dBm</strong></div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- APARTADO 2: DASHBOARD Y VISTA DE RACKS     -->
-    <!-- ========================================== -->
+    <!-- APARTADO 2: DASHBOARD Y VISTA DE RACKS -->
     <div id="vistaDashboardPrincipal" class="hidden">
         
-        <!-- Header / Navbar -->
+        <!-- Header -->
         <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain filter brightness-110">
@@ -162,7 +152,7 @@
             </div>
         </header>
 
-        <!-- MODAL 1: MAPA DE RACKS EN LA SALA -->
+        <!-- MODAL 1: MAPA DE RACKS CON CARGADOR DE IMAGEN -->
         <div id="modalMapaRacks" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
             <div class="glass-card max-w-4xl w-full p-6 border border-slate-700 relative shadow-2xl overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
@@ -170,35 +160,41 @@
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
                             <span>🗺️</span> Plano de Distribución de Racks - <span id="tituloSalaMapa" class="text-cyan-400">Sala MDF Principal</span>
                         </h3>
-                        <p class="text-xs text-slate-400">Haz clic en cualquier Rack para cargar su inventario y telemetría en el visor central.</p>
+                        <p class="text-xs text-slate-400">Haz clic en un Rack para cargarlo en el visor, o sube tu propia imagen de plano.</p>
                     </div>
                     <button onclick="cerrarModalMapa()" class="text-slate-400 hover:text-white font-bold text-xl px-2">&times;</button>
+                </div>
+
+                <!-- Cargar Imagen Personalizada -->
+                <div class="mb-4 flex items-center gap-3 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <span class="text-xs text-slate-300 font-medium">Subir Imagen del Mapa:</span>
+                    <input type="file" id="inputSubirMapa" accept="image/*" onchange="cargarImagenMapa(event)" class="text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-900/80 file:text-indigo-200 hover:file:bg-indigo-800 cursor-pointer">
+                    <button onclick="restablecerMapaPredeterminado()" class="text-[10px] text-slate-400 hover:text-slate-200 underline ml-auto">Usar default</button>
                 </div>
 
                 <!-- Contenedor del Mapa / Esquema de Racks -->
                 <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 relative min-h-[340px] flex flex-col justify-between">
                     
-                    <!-- Imagen de Fondo / Plano (MAPA RACKS.jpg) -->
                     <div class="relative w-full rounded-lg overflow-hidden border border-slate-800/60 bg-slate-900/40 p-4">
-                        <img src="MAPA RACKS.jpg" alt="Mapa de Racks" class="w-full h-auto max-h-[220px] object-cover rounded opacity-40 mb-4" onerror="this.style.display='none'">
+                        <!-- Imagen Dinámica -->
+                        <img id="imgPlanoDatacenter" src="MAPA RACKS.jpg" alt="Mapa de Racks" class="w-full h-auto max-h-[220px] object-cover rounded opacity-40 mb-4 transition-all">
 
-                        <!-- Matriz de Racks Interactivos (Fila F1 y Fila F2) -->
-                        <div class="space-y-6">
-                            <!-- Fila F1 (Norte / Frontal) -->
+                        <!-- Matriz de Racks Interactivos -->
+                        <div class="space-y-6 relative z-10">
                             <div>
                                 <div class="text-xs font-mono text-cyan-400 mb-2 font-bold flex items-center gap-1">
                                     <span>📍 FILA F1 (Frontal)</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <button onclick="seleccionarRackMapa('F1-R1', 'Fila 1 - Rack 1')" class="p-3 rounded-lg border border-indigo-500/50 bg-indigo-950/40 hover:bg-indigo-600/30 text-left transition group">
+                                    <button onclick="seleccionarRackMapa('F1-R1', 'Fila 1 - Rack 1')" class="p-3 rounded-lg border border-indigo-500/50 bg-indigo-950/60 hover:bg-indigo-600/40 text-left transition group backdrop-blur-sm">
                                         <div class="flex justify-between items-center">
                                             <span class="font-mono font-bold text-white group-hover:text-cyan-300">RACK F1-R1</span>
                                             <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
                                         </div>
-                                        <p class="text-[10px] text-slate-400 mt-1">OLT GPON, Switch Core, Patch Panels</p>
+                                        <p class="text-[10px] text-slate-300 mt-1">OLT GPON, Switch Core, Patch Panels</p>
                                     </button>
 
-                                    <button onclick="seleccionarRackMapa('F1-R2', 'Fila 1 - Rack 2')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                    <button onclick="seleccionarRackMapa('F1-R2', 'Fila 1 - Rack 2')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/80 hover:bg-indigo-600/40 text-left transition group backdrop-blur-sm">
                                         <div class="flex justify-between items-center">
                                             <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F1-R2</span>
                                             <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Reserva</span>
@@ -206,7 +202,7 @@
                                         <p class="text-[10px] text-slate-400 mt-1">Organizadores & Pasahilos</p>
                                     </button>
 
-                                    <button onclick="seleccionarRackMapa('F1-R3', 'Fila 1 - Rack 3')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                    <button onclick="seleccionarRackMapa('F1-R3', 'Fila 1 - Rack 3')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/80 hover:bg-indigo-600/40 text-left transition group backdrop-blur-sm">
                                         <div class="flex justify-between items-center">
                                             <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F1-R3</span>
                                             <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
@@ -216,13 +212,12 @@
                                 </div>
                             </div>
 
-                            <!-- Fila F2 (Sur / Posterior) -->
                             <div>
                                 <div class="text-xs font-mono text-amber-400 mb-2 font-bold flex items-center gap-1">
-                                    <span>📍 FILA F2 (Posterior)</span>
+                                    <span>📍 FILA F2 (Sur / Posterior)</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    <button onclick="seleccionarRackMapa('F2-R1', 'Fila 2 - Rack 1')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                    <button onclick="seleccionarRackMapa('F2-R1', 'Fila 2 - Rack 1')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/80 hover:bg-indigo-600/40 text-left transition group backdrop-blur-sm">
                                         <div class="flex justify-between items-center">
                                             <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F2-R1</span>
                                             <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
@@ -230,7 +225,7 @@
                                         <p class="text-[10px] text-slate-400 mt-1">UPS On-Line & Distribución PDU</p>
                                     </button>
 
-                                    <button onclick="seleccionarRackMapa('F2-R2', 'Fila 2 - Rack 2')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                    <button onclick="seleccionarRackMapa('F2-R2', 'Fila 2 - Rack 2')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/80 hover:bg-indigo-600/40 text-left transition group backdrop-blur-sm">
                                         <div class="flex justify-between items-center">
                                             <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F2-R2</span>
                                             <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Libre</span>
@@ -238,7 +233,7 @@
                                         <p class="text-[10px] text-slate-400 mt-1">Disponible para expansión</p>
                                     </button>
 
-                                    <button onclick="seleccionarRackMapa('F2-R3', 'Fila 2 - Rack 3')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                    <button onclick="seleccionarRackMapa('F2-R3', 'Fila 2 - Rack 3')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/80 hover:bg-indigo-600/40 text-left transition group backdrop-blur-sm">
                                         <div class="flex justify-between items-center">
                                             <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F2-R3</span>
                                             <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
@@ -324,9 +319,8 @@
         <!-- Main Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-            <!-- Panel Izquierdo: Estadísticas y Capacidad -->
+            <!-- Panel Izquierdo: Estadísticas -->
             <div class="lg:col-span-1 space-y-6">
-                
                 <div class="glass-card p-4">
                     <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Métricas del Gabinete</h2>
                     <div class="space-y-4">
@@ -380,12 +374,10 @@
                         <canvas id="chartCategorias"></canvas>
                     </div>
                 </div>
-
             </div>
 
             <!-- Panel Central: Visor del Rack y Matriz de Puertos -->
             <div class="lg:col-span-2 space-y-6">
-                
                 <div class="glass-card p-4">
                     <div class="flex justify-between items-center mb-4">
                         <div>
@@ -409,7 +401,6 @@
                     </div>
                 </div>
 
-                <!-- Matriz de Puertos UTP / Fibra -->
                 <div class="glass-card p-4">
                     <div class="flex justify-between items-center mb-3 border-b border-slate-700/60 pb-2">
                         <div>
@@ -427,13 +418,10 @@
                         <p class="col-span-full text-center text-xs text-slate-500 italic py-4">Haz clic en un equipo del rack para desplegar sus conectores.</p>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Panel Derecho: Telemetría de Potencia y Monitoreo de Cámaras / Equipos Cliente -->
+            <!-- Panel Derecho -->
             <div class="lg:col-span-1 space-y-6">
-
-                <!-- Telemetría de Potencia de Fibra -->
                 <div class="glass-card p-4 border-l-4 border-l-cyan-500">
                     <div class="flex justify-between items-center mb-2">
                         <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">Potencia de Fibra Óptica</h2>
@@ -445,7 +433,6 @@
                     </div>
                 </div>
 
-                <!-- VISUALIZACIÓN DE CÁMARAS, SWITCHES Y PANTALLAS DEL CLIENTE -->
                 <div class="glass-card p-4 border-l-4 border-l-indigo-500">
                     <div class="flex justify-between items-center mb-3">
                         <div>
@@ -458,7 +445,6 @@
                     <div id="listaDispositivosCliente" class="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
                     </div>
                 </div>
-
             </div>
 
         </div>
@@ -513,13 +499,39 @@
         ];
 
         try {
-            const localData = localStorage.getItem('noxtium_rack_v8');
+            const localData = localStorage.getItem('noxtium_rack_v9');
             if (localData) inventario = JSON.parse(localData);
+
+            const mapaGuardado = localStorage.getItem('noxtium_mapa_custom');
+            if (mapaGuardado) {
+                setTimeout(() => {
+                    const imgElement = document.getElementById('imgPlanoDatacenter');
+                    if (imgElement) imgElement.src = mapaGuardado;
+                }, 100);
+            }
         } catch (err) {
             console.error('Error cargando localStorage:', err);
         }
 
         let chartInstancia = null;
+
+        function cargarImagenMapa(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const imgBase64 = evt.target.result;
+                document.getElementById('imgPlanoDatacenter').src = imgBase64;
+                localStorage.setItem('noxtium_mapa_custom', imgBase64);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function restablecerMapaPredeterminado() {
+            localStorage.removeItem('noxtium_mapa_custom');
+            document.getElementById('imgPlanoDatacenter').src = 'MAPA RACKS.jpg';
+        }
 
         function seleccionarSala(nombreSala, desc) {
             salaActual = nombreSala;
@@ -875,7 +887,7 @@
         }
 
         function guardarYRenderizar() {
-            localStorage.setItem('noxtium_rack_v8', JSON.stringify(inventario));
+            localStorage.setItem('noxtium_rack_v9', JSON.stringify(inventario));
             renderizarRack();
         }
 
@@ -891,7 +903,8 @@
 
         function reiniciarInventario() {
             if (confirm('¿Restablecer todo el inventario Noxtium?')) {
-                localStorage.removeItem('noxtium_rack_v8');
+                localStorage.removeItem('noxtium_rack_v9');
+                localStorage.removeItem('noxtium_mapa_custom');
                 location.reload();
             }
         }
