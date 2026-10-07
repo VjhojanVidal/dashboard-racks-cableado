@@ -143,7 +143,10 @@
                     <p class="text-xs text-slate-300">Monitoreo Rack de Clientes - <span id="labelNombreSalaActiva" class="font-bold text-indigo-400">Sala MDF Principal</span></p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
+                <button onclick="abrirModalMapa()" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-xs px-3 py-2 rounded-md font-medium transition shadow flex items-center gap-1.5">
+                    <span>🗺️</span> Mapa
+                </button>
                 <button onclick="volverASeleccionSalas()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-md font-medium transition shadow flex items-center gap-1">
                     <span>🏢</span> Cambiar Sala
                 </button>
@@ -159,7 +162,104 @@
             </div>
         </header>
 
-        <!-- Modal Desplegable para Agregar Equipos -->
+        <!-- MODAL 1: MAPA DE RACKS EN LA SALA -->
+        <div id="modalMapaRacks" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-card max-w-4xl w-full p-6 border border-slate-700 relative shadow-2xl overflow-hidden">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span>🗺️</span> Plano de Distribución de Racks - <span id="tituloSalaMapa" class="text-cyan-400">Sala MDF Principal</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">Haz clic en cualquier Rack para cargar su inventario y telemetría en el visor central.</p>
+                    </div>
+                    <button onclick="cerrarModalMapa()" class="text-slate-400 hover:text-white font-bold text-xl px-2">&times;</button>
+                </div>
+
+                <!-- Contenedor del Mapa / Esquema de Racks -->
+                <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 relative min-h-[340px] flex flex-col justify-between">
+                    
+                    <!-- Imagen de Fondo / Plano (MAPA RACKS.jpg) -->
+                    <div class="relative w-full rounded-lg overflow-hidden border border-slate-800/60 bg-slate-900/40 p-4">
+                        <img src="MAPA RACKS.jpg" alt="Mapa de Racks" class="w-full h-auto max-h-[220px] object-cover rounded opacity-40 mb-4" onerror="this.style.display='none'">
+
+                        <!-- Matriz de Racks Interactivos (Fila F1 y Fila F2) -->
+                        <div class="space-y-6">
+                            <!-- Fila F1 (Norte / Frontal) -->
+                            <div>
+                                <div class="text-xs font-mono text-cyan-400 mb-2 font-bold flex items-center gap-1">
+                                    <span>📍 FILA F1 (Frontal)</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <button onclick="seleccionarRackMapa('F1-R1', 'Fila 1 - Rack 1')" class="p-3 rounded-lg border border-indigo-500/50 bg-indigo-950/40 hover:bg-indigo-600/30 text-left transition group">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono font-bold text-white group-hover:text-cyan-300">RACK F1-R1</span>
+                                            <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">OLT GPON, Switch Core, Patch Panels</p>
+                                    </button>
+
+                                    <button onclick="seleccionarRackMapa('F1-R2', 'Fila 1 - Rack 2')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F1-R2</span>
+                                            <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Reserva</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">Organizadores & Pasahilos</p>
+                                    </button>
+
+                                    <button onclick="seleccionarRackMapa('F1-R3', 'Fila 1 - Rack 3')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F1-R3</span>
+                                            <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">NVR CCTV & Servidor Storage</p>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Fila F2 (Sur / Posterior) -->
+                            <div>
+                                <div class="text-xs font-mono text-amber-400 mb-2 font-bold flex items-center gap-1">
+                                    <span>📍 FILA F2 (Posterior)</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <button onclick="seleccionarRackMapa('F2-R1', 'Fila 2 - Rack 1')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F2-R1</span>
+                                            <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">UPS On-Line & Distribución PDU</p>
+                                    </button>
+
+                                    <button onclick="seleccionarRackMapa('F2-R2', 'Fila 2 - Rack 2')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F2-R2</span>
+                                            <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Libre</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">Disponible para expansión</p>
+                                    </button>
+
+                                    <button onclick="seleccionarRackMapa('F2-R3', 'Fila 2 - Rack 3')" class="p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-600/30 text-left transition group">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono font-bold text-slate-200 group-hover:text-cyan-300">RACK F2-R3</span>
+                                            <span class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800">Activo</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1">Bandeja de Empalmes Ópticos</p>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <button onclick="cerrarModalMapa()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-4 py-2 rounded font-medium">
+                            Cerrar Mapa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL 2: DESPLEGABLE PARA AGREGAR EQUIPOS -->
         <div id="modalAgregarEquipo" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
             <div class="glass-card max-w-md w-full p-6 border border-slate-700 relative shadow-2xl">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
@@ -289,7 +389,7 @@
                 <div class="glass-card p-4">
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <h2 class="text-lg font-bold text-white">Rack Principal (42U) - Fila F1 / Rack R1</h2>
+                            <h2 class="text-lg font-bold text-white" id="labelRackSeleccionadoTitulo">Rack Principal (42U) - Fila F1 / Rack R1</h2>
                             <p class="text-xs text-slate-300">Codificación Fila-Rack-Posición (F1-R1-P1/P2/P3)</p>
                         </div>
                         <button onclick="abrirModalAgregar()" class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-700 px-3 py-1.5 rounded hover:bg-indigo-900 transition">
@@ -370,6 +470,7 @@
         const TOTAL_UNIDADES = 42;
         let equipoSeleccionadoU = 41;
         let salaActual = 'MDF Principal';
+        let rackActualCod = 'F1-R1';
 
         let inventario = {
             42: { tipo: 'OLT', nombre: 'OLT-GPON-NOXTIUM', frp: 'F1-R1-P1', puertos: 8, estado: 'Activo', conexiones: {} },
@@ -412,7 +513,7 @@
         ];
 
         try {
-            const localData = localStorage.getItem('noxtium_rack_v7');
+            const localData = localStorage.getItem('noxtium_rack_v8');
             if (localData) inventario = JSON.parse(localData);
         } catch (err) {
             console.error('Error cargando localStorage:', err);
@@ -423,6 +524,7 @@
         function seleccionarSala(nombreSala, desc) {
             salaActual = nombreSala;
             document.getElementById('labelNombreSalaActiva').textContent = `${nombreSala} (${desc})`;
+            document.getElementById('tituloSalaMapa').textContent = nombreSala;
             document.getElementById('vistaSeleccionSalas').classList.add('hidden');
             document.getElementById('vistaDashboardPrincipal').classList.remove('hidden');
             renderizarRack();
@@ -432,6 +534,21 @@
         function volverASeleccionSalas() {
             document.getElementById('vistaDashboardPrincipal').classList.add('hidden');
             document.getElementById('vistaSeleccionSalas').classList.remove('hidden');
+        }
+
+        function abrirModalMapa() {
+            document.getElementById('modalMapaRacks').classList.remove('hidden');
+        }
+
+        function cerrarModalMapa() {
+            document.getElementById('modalMapaRacks').classList.add('hidden');
+        }
+
+        function seleccionarRackMapa(codRack, desc) {
+            rackActualCod = codRack;
+            document.getElementById('labelRackSeleccionadoTitulo').textContent = `Rack (${codRack}) - ${desc}`;
+            cerrarModalMapa();
+            renderizarRack();
         }
 
         function abrirModalAgregar() {
@@ -487,7 +604,7 @@
                     if (eq.tipo === 'Switch') badgeColor = 'bg-indigo-950 text-indigo-300 border-indigo-700';
                     if (eq.tipo === 'PatchPanel') badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-700';
 
-                    const codigoFRP = eq.frp || (i >= 29 ? 'F1-R1-P1' : i >= 15 ? 'F1-R1-P2' : 'F1-R1-P3');
+                    const codigoFRP = eq.frp || `${rackActualCod}-${i >= 29 ? 'P1' : i >= 15 ? 'P2' : 'P3'}`;
 
                     unitDiv.innerHTML = `
                         <div class="flex items-center gap-2">
@@ -504,7 +621,7 @@
                         </div>
                     `;
                 } else {
-                    const frpDefecto = (i >= 29 ? 'F1-R1-P1' : i >= 15 ? 'F1-R1-P2' : 'F1-R1-P3');
+                    const frpDefecto = `${rackActualCod}-${i >= 29 ? 'P1' : i >= 15 ? 'P2' : 'P3'}`;
                     unitDiv.innerHTML = `
                         <div class="flex items-center gap-2">
                             <span class="text-slate-500 font-bold w-8">U${i}</span>
@@ -728,7 +845,7 @@
             const tipo = document.getElementById('selectTipo').value;
             const nombre = document.getElementById('inputNombre').value;
             const puertos = parseInt(document.getElementById('selectPuertos').value);
-            const frp = document.getElementById('inputCodigoFRP').value || (u >= 29 ? 'F1-R1-P1' : u >= 15 ? 'F1-R1-P2' : 'F1-R1-P3');
+            const frp = document.getElementById('inputCodigoFRP').value || `${rackActualCod}-${u >= 29 ? 'P1' : u >= 15 ? 'P2' : 'P3'}`;
 
             inventario[u] = {
                 tipo: tipo,
@@ -758,7 +875,7 @@
         }
 
         function guardarYRenderizar() {
-            localStorage.setItem('noxtium_rack_v7', JSON.stringify(inventario));
+            localStorage.setItem('noxtium_rack_v8', JSON.stringify(inventario));
             renderizarRack();
         }
 
@@ -774,7 +891,7 @@
 
         function reiniciarInventario() {
             if (confirm('¿Restablecer todo el inventario Noxtium?')) {
-                localStorage.removeItem('noxtium_rack_v7');
+                localStorage.removeItem('noxtium_rack_v8');
                 location.reload();
             }
         }
