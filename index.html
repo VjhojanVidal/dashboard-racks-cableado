@@ -8,19 +8,18 @@
     <!-- LIBRERÍAS EXTERNAS -->
     <!-- Tailwind CSS CDN: Framework CSS utilitario para estilos responsivos y modernos -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN: Librería para la renderización dinámica de gráficos (Distribución de infraestructura) -->
+    <!-- Chart.js CDN: Librería para la renderización dinámica de gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- ESTILOS PERSONALIZADOS Y REGLAS DE DISEÑO -->
     <style>
-        /* Configuración base del cuerpo de la aplicación */
         body {
             background-color: #0b0f19;
             color: #f8fafc;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        /* Estilo Glassmorphism para las tarjetas y paneles laterales */
+        /* Estilo Glassmorphism para las tarjetas y paneles */
         .glass-card {
             background: rgba(17, 24, 39, 0.75);
             backdrop-filter: blur(12px);
@@ -28,7 +27,7 @@
             border-radius: 0.75rem;
         }
 
-        /* Representación visual de cada Unidad RU en el Gabinete del Rack */
+        /* Representación visual de cada Unidad RU en el Rack */
         .rack-unit {
             height: 38px;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
@@ -38,7 +37,7 @@
             background-color: rgba(30, 41, 59, 0.6);
         }
 
-        /* Contenedor individual de puerto RJ45/SFP dentro de la matriz de telemetría */
+        /* Contenedores de puertos dentro de la matriz */
         .port-box {
             width: 26px;
             height: 26px;
@@ -59,7 +58,7 @@
             z-index: 10;
         }
 
-        /* Indicador LED de estado físico en la esquina del puerto */
+        /* LED indicador de puerto */
         .led-indicator {
             width: 4px;
             height: 4px;
@@ -69,7 +68,6 @@
             right: 2px;
         }
 
-        /* Estilización de barras de desplazamiento personalizadas (Scrollbars) */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -127,25 +125,20 @@
     <!-- ========================================================================= -->
     <div id="vistaSeleccionSalas" class="min-h-screen flex flex-col justify-center items-center max-w-6xl mx-auto py-10 hidden">
         
-        <!-- Botón de Cerrar Sesión en esquina superior -->
         <div class="w-full flex justify-end mb-4 px-4">
             <button onclick="cerrarSesion()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition">
                 <span>🔒</span> Cerrar Sesión (<span id="labelTecnicoLogueado" class="text-cyan-400 font-mono font-bold">admin</span>)
             </button>
         </div>
 
-        <!-- Encabezado de bienvenida de la pantalla de salas -->
         <div class="text-center mb-10">
             <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-16 w-auto mx-auto mb-4 object-contain filter brightness-110">
             <h1 class="text-3xl font-extrabold text-white tracking-wider mb-1">Noxtium 2.0</h1>
             <p class="text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">Datacenter & Telemetry Control System</p>
-            <p class="text-slate-400 text-sm max-w-lg mx-auto">Selecciona la sala de telecomunicaciones o Datacenter para inspeccionar la codificación de racks, telemetría GPON y cámaras IP.</p>
+            <p class="text-slate-400 text-sm max-w-lg mx-auto">Selecciona la sala de telecomunicaciones para inspeccionar la codificación de racks, telemetría GPON y cámaras IP.</p>
         </div>
 
-        <!-- Tarjetas de selección de salas activas -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4">
-            
-            <!-- Sala 1: MDF Principal -->
             <div onclick="seleccionarSala('MDF Principal', 'Sala Principal - Fila F1/F2')" class="glass-card p-6 border border-slate-800 hover:border-indigo-500 cursor-pointer transition-all duration-300 hover:-translate-y-1 group">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-2xl">🏢</span>
@@ -160,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- Sala 2: IDF Piso 1 -->
             <div onclick="seleccionarSala('IDF - Piso 1', 'Distribución Piso 1')" class="glass-card p-6 border border-slate-800 hover:border-indigo-500 cursor-pointer transition-all duration-300 hover:-translate-y-1 group">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-2xl">⚡</span>
@@ -175,7 +167,6 @@
                 </div>
             </div>
 
-            <!-- Sala 3: Nodo Core / FTTH -->
             <div onclick="seleccionarSala('Core / FTTH', 'Nodo Principal GPON')" class="glass-card p-6 border border-slate-800 hover:border-indigo-500 cursor-pointer transition-all duration-300 hover:-translate-y-1 group">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-2xl">🌐</span>
@@ -189,7 +180,6 @@
                     <div class="flex justify-between"><span>Potencia Promedio:</span> <strong class="text-cyan-300">-19.3 dBm</strong></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -198,7 +188,6 @@
     <!-- ========================================================================= -->
     <div id="vistaDashboardPrincipal" class="hidden">
         
-        <!-- Barra de Navegación y Acciones Superiores -->
         <header class="glass-card p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <img src="LOGO limpio.png?v=2" alt="Logo Noxtium" class="h-10 w-auto object-contain filter brightness-110">
@@ -211,7 +200,6 @@
                 </div>
             </div>
             
-            <!-- Botones de Acción Global -->
             <div class="flex items-center gap-3 flex-wrap">
                 <button onclick="abrirModalMapa()" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-xs px-3 py-2 rounded-md font-medium transition shadow flex items-center gap-1.5">
                     <span>🗺️</span> Mapa
@@ -234,9 +222,7 @@
             </div>
         </header>
 
-        <!-- ========================================================================= -->
-        <!-- MODAL 1: VISOR E INTERFAZ DEL MAPA DEL DATACENTER                         -->
-        <!-- ========================================================================= -->
+        <!-- MODAL 1: MAPA Y SUBIDA PERSISTENTE DE PLANO -->
         <div id="modalMapaRacks" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
             <div class="glass-card max-w-4xl w-full p-6 border border-slate-700 relative shadow-2xl overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
@@ -333,9 +319,7 @@
             </div>
         </div>
 
-        <!-- ========================================================================= -->
-        <!-- MODAL 2: FORMULARIO DESPLEGABLE PARA AGREGAR EQUIPOS                      -->
-        <!-- ========================================================================= -->
+        <!-- MODAL 2: FORMULARIO AGREGAR EQUIPO -->
         <div id="modalAgregarEquipo" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
             <div class="glass-card max-w-md w-full p-6 border border-slate-700 relative shadow-2xl">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
@@ -400,7 +384,7 @@
         <!-- GRID PRINCIPAL DEL DASHBOARD -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-            <!-- COLUMNA 1: MÉTRICAS -->
+            <!-- COLUMNA 1: MÉTRICAS Y GRÁFICO -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-card p-4">
                     <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">Métricas del Gabinete</h2>
@@ -457,7 +441,7 @@
                 </div>
             </div>
 
-            <!-- COLUMNA 2 Y 3: VISOR RACK Y MATRIZ -->
+            <!-- COLUMNA 2 Y 3: RACK DE 42U Y MATRIZ DE PUERTO -->
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass-card p-4">
                     <div class="flex justify-between items-center mb-4">
@@ -501,7 +485,7 @@
                 </div>
             </div>
 
-            <!-- COLUMNA 4: FIBRA Y CLIENTE -->
+            <!-- COLUMNA 4: POTENCIA ÓPTICA Y RED DEL CLIENTE -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-card p-4 border-l-4 border-l-cyan-500">
                     <div class="flex justify-between items-center mb-2">
@@ -533,7 +517,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- LÓGICA JAVASCRIPT CORREGIDA                                              -->
+    <!-- LÓGICA DE PROGRAMACIÓN JAVASCRIPT CON PERSISTENCIA DE DATOS               -->
     <!-- ========================================================================= -->
     <script>
         const TOTAL_UNIDADES = 42;
@@ -548,6 +532,7 @@
             "noc": "noxtiumnoc"
         };
 
+        // Inventario base por defecto
         let inventario = {
             42: { tipo: 'OLT', nombre: 'OLT-GPON-NOXTIUM', frp: 'F1-R1-P1', puertos: 8, estado: 'Activo', conexiones: {} },
             41: { 
@@ -590,7 +575,7 @@
 
         let chartInstancia = null;
 
-        // --- AUTENTICACIÓN CORREGIDA ---
+        // --- AUTENTICACIÓN Y SESIONES ---
         function autenticarTecnico(e) {
             if (e) e.preventDefault();
             
@@ -619,18 +604,23 @@
             document.getElementById('mensajeErrorLogin').classList.add('hidden');
         }
 
-        // --- CARGA INICIAL ---
+        // --- CARGA Y SINCRONIZACIÓN DE LOCALSTORAGE ---
         window.addEventListener('DOMContentLoaded', () => {
             try {
+                // 1. Cargar inventario guardado
                 const localData = localStorage.getItem('noxtium_v2_rack');
-                if (localData) inventario = JSON.parse(localData);
+                if (localData) {
+                    inventario = JSON.parse(localData);
+                }
 
+                // 2. Cargar imagen de plano personalizada guardada
                 const mapaGuardado = localStorage.getItem('noxtium_mapa_custom');
                 if (mapaGuardado) {
                     const imgElement = document.getElementById('imgPlanoDatacenter');
                     if (imgElement) imgElement.src = mapaGuardado;
                 }
 
+                // 3. Restaurar sesión si existe
                 const sesionActiva = sessionStorage.getItem('noxtium_tecnico_auth');
                 if (sesionActiva) {
                     document.getElementById('vistaLogin').classList.add('hidden');
@@ -638,10 +628,31 @@
                     document.getElementById('labelTecnicoLogueado').textContent = sesionActiva;
                 }
             } catch (err) {
-                console.error('Error al inicializar:', err);
+                console.error('Error al restaurar datos desde localStorage:', err);
             }
         });
 
+        // --- GESTIÓN DEL MAPA (PERSISTENCIA BASE64) ---
+        function cargarImagenMapa(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const imgBase64 = evt.target.result;
+                document.getElementById('imgPlanoDatacenter').src = imgBase64;
+                // Guardar la imagen en Base64 dentro de localStorage
+                localStorage.setItem('noxtium_mapa_custom', imgBase64);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function restablecerMapaPredeterminado() {
+            localStorage.removeItem('noxtium_mapa_custom');
+            document.getElementById('imgPlanoDatacenter').src = 'MAPA RACKS.jpg';
+        }
+
+        // --- NAVEGACIÓN Y VISORES ---
         function seleccionarSala(nombreSala, desc) {
             salaActual = nombreSala;
             document.getElementById('labelNombreSalaActiva').textContent = `${nombreSala} (${desc})`;
@@ -662,24 +673,6 @@
         function abrirModalAgregar() { document.getElementById('modalAgregarEquipo').classList.remove('hidden'); }
         function cerrarModalAgregar() { document.getElementById('modalAgregarEquipo').classList.add('hidden'); }
 
-        function cargarImagenMapa(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const imgBase64 = evt.target.result;
-                document.getElementById('imgPlanoDatacenter').src = imgBase64;
-                localStorage.setItem('noxtium_mapa_custom', imgBase64);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function restablecerMapaPredeterminado() {
-            localStorage.removeItem('noxtium_mapa_custom');
-            document.getElementById('imgPlanoDatacenter').src = 'MAPA RACKS.jpg';
-        }
-
         function seleccionarRackMapa(codRack, desc) {
             rackActualCod = codRack;
             document.getElementById('labelRackSeleccionadoTitulo').textContent = `Rack (${codRack}) - ${desc}`;
@@ -687,6 +680,7 @@
             renderizarRack();
         }
 
+        // --- RENDERIZADO DEL RACK ---
         function renderizarRack() {
             const container = document.getElementById('rackContainer');
             const selectUnidad = document.getElementById('selectUnidad');
@@ -967,6 +961,7 @@
             });
         }
 
+        // --- ACCIONES CRUD (AGREGAR / ELIMINAR Y GUARDAR) ---
         function agregarEquipo(e) {
             e.preventDefault();
             const u = document.getElementById('selectUnidad').value;
@@ -1002,7 +997,9 @@
             }
         }
 
+        // --- PERSISTENCIA Y RESTABLECIMIENTO ---
         function guardarYRenderizar() {
+            // Guarda el inventario en formato JSON
             localStorage.setItem('noxtium_v2_rack', JSON.stringify(inventario));
             renderizarRack();
         }
@@ -1018,7 +1015,7 @@
         }
 
         function reiniciarInventario() {
-            if (confirm('¿Restablecer todo el sistema a Noxtium 2.0 por defecto?')) {
+            if (confirm('¿Restablecer todo el sistema a Noxtium 2.0 por defecto? Esto borrará el mapa y los equipos guardados.')) {
                 localStorage.removeItem('noxtium_v2_rack');
                 localStorage.removeItem('noxtium_mapa_custom');
                 location.reload();
