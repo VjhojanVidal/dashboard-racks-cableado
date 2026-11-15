@@ -799,7 +799,7 @@
 
             registrarAuditoriaEvento(trabajadorId, 'CREATE_TICKET', 'ALLOW', `Ticket ${nuevoTicket.id} creado bajo Orden ${numeroOrden}.`);
 
-            // Parámetros que viajan automáticamente a EmailJS para el correo
+            // Parámetros que viajan automáticamente a EmailJS usando tu template_jxzyhld
             let parametrosCorreo = {
                 to_email: "noxtiumssc@gmail.com",
                 trabajador_id: trabajadorId,
@@ -810,8 +810,8 @@
                 fecha: nuevoTicket.fecha
             };
 
-            // Disparar envío a EmailJS
-            emailjs.send("service_nycw12f", "TU_TEMPLATE_ID", parametrosCorreo)
+            // Disparar envío a EmailJS con tu Template ID integrado
+            emailjs.send("service_nycw12f", "template_jxzyhld", parametrosCorreo)
                 .then(function(response) {
                     console.log("Correo enviado con éxito a noxtiumssc@gmail.com", response.status);
                 }, function(error) {
