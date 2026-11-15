@@ -9,6 +9,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- EMAILJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("2t2eXNi9SaNnu_Rs_");
+       })();
+    </script>
+
     <!-- ESTILOS PERSONALIZADOS Y REGLAS DE DISEÑO -->
     <style>
         body {
@@ -388,7 +396,7 @@
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
                             <span>🎫</span> Registro de Tickets y Órdenes de Trabajo (OT)
                         </h3>
-                        <p class="text-xs text-slate-400">Documenta las intervenciones técnicas realizadas en <span id="salaTicketActual" class="text-cyan-400 font-semibold">Sala MDF Principal</span>.</p>
+                        <p class="text-xs text-slate-400">Documenta las intervenciones técnicas realizadas en <span id="salaTicketActual" class="text-cyan-400 font-semibold">Sala MDF Principal</span> (Se enviará notificación automática a <strong class="text-slate-200">noxtiumssc@gmail.com</strong>).</p>
                     </div>
                     <button onclick="cerrarModalTickets()" class="text-slate-400 hover:text-white font-bold text-xl px-2">&times;</button>
                 </div>
@@ -414,7 +422,7 @@
 
                     <div class="flex justify-end gap-2">
                         <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded font-medium shadow flex items-center gap-1.5 transition">
-                            <span>✓</span> Guardar Ticket
+                            <span>✓</span> Guardar y Enviar Ticket
                         </button>
                     </div>
                 </form>
@@ -755,7 +763,7 @@
             }
         });
 
-        // --- GESTIÓN DE TICKETS DE OPERACIONES ---
+        // --- GESTIÓN DE TICKETS DE OPERACIONES Y ENVÍO DE CORREO ---
         function abrirModalTickets() {
             const usuarioActivo = sessionStorage.getItem('noxtium_tecnico_auth') || '';
             document.getElementById('inputTicketTrabajadorId').value = usuarioActivo;
@@ -791,9 +799,29 @@
 
             registrarAuditoriaEvento(trabajadorId, 'CREATE_TICKET', 'ALLOW', `Ticket ${nuevoTicket.id} creado bajo Orden ${numeroOrden}.`);
 
+            // Parámetros que viajan automáticamente a EmailJS para el correo
+            let parametrosCorreo = {
+                to_email: "noxtiumssc@gmail.com",
+                trabajador_id: trabajadorId,
+                numero_orden: numeroOrden,
+                comentarios: comentarios,
+                sala: salaActual,
+                rack: rackActualCod,
+                fecha: nuevoTicket.fecha
+            };
+
+            // Disparar envío a EmailJS
+            emailjs.send("service_nycw12f", "TU_TEMPLATE_ID", parametrosCorreo)
+                .then(function(response) {
+                    console.log("Correo enviado con éxito a noxtiumssc@gmail.com", response.status);
+                }, function(error) {
+                    console.error("Error al enviar el correo automático:", error);
+                });
+
             document.getElementById('inputTicketNumeroOrden').value = '';
             document.getElementById('inputTicketComentarios').value = '';
             renderizarTickets();
+            alert("¡Ticket creado exitosamente y notificación enviada a noxtiumssc@gmail.com!");
         }
 
         function eliminarTicket(index) {
